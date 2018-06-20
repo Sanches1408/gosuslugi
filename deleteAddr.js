@@ -10,9 +10,11 @@
   }
 
   var textarea = $('.modal textarea');
-  textarea.click(function(){
-    window.addr.setClick(this);
-  });
+  if (window.addr.parseAddr(textarea)) {
+    textarea.click(function(){
+      window.addr.setClick(this);
+    });
+  }
 
   if (textarea.val().indexOf('(') > 0) {
     window.addr.element = textarea;

@@ -4,7 +4,7 @@ $(document).ready(function(){
 
   var s = '<style>\
 .modal {\r\n  background-color: rgba(0, 0, 0, 0.25);\r\n}\r\n\
-.modal-content {\r\n  max-width: 1100px;\r\n}\r\n\
+.modal-content {\r\n  max-width: 1100px!important;\r\n}\r\n\
 .attr-field--layout > * {\r\n  display: block!important;\r\n\
 font-weight: bold!important;\r\n  width: 100%!important;\r\n\
 padding-left: 5%;\r\n  margin-bottom: 2vh;\r\n}\r\n\
@@ -20,10 +20,6 @@ margin-left: 5%;\r\n}\r\n\
 
   $('.attr-field--layout .attr-label-title').addClass('required');
 
-  $('textarea').click(function(){
-    window.addr.setClick(this);
-  });
-
   var div = '<div class="table-actions" style="text-align: right;">\
     <a class="btn btn-default" title="Удалить адрес" onclick="deleteAddress(this);">\
     Очистить адрес</a></div>';
@@ -36,11 +32,16 @@ margin-left: 5%;\r\n}\r\n\
       $("textarea", $(d)).removeClass("attr-value-el--filled").val("");\
     }\<\/script\>';
 
-  $($('textarea').parent()).append($(div)).append($(script));
-
   function require(elem, bool) {
     $('#id_'+elem).attr('ismandatory', bool.toString());
     $('#caption_'+elem)[(bool ? 'add' : 'remove')+'Class']('required');
+  }
+
+  function parseAddr(t) {
+    if ($(t).attr('onclick').split("'")[1] == '10344729@SXClass')
+      return true;
+    else
+      return false;
   }
 
   function change() {
@@ -109,6 +110,16 @@ margin-left: 5%;\r\n}\r\n\
   window.addr.style = style;
   window.addr.setClick = setClick;
   window.addr.require = require;
+  window.addr.parseAddr = parseAddr;
+
+  $.each($('textarea'), function(i, v){
+    if (window.addr.parseAddr(v)) {
+      $(v).click(function(){
+        window.addr.setClick(this);
+      });
+      $($(v).parent()).append($(div)).append($(script));
+    }
+  });
 });
 
 </script>
