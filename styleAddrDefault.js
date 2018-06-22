@@ -15,7 +15,8 @@ $(document).ready(function(){
     }\<\/script\>';
 
   function parseAddr(t) {
-    if ($(t).attr('onclick').split("'")[1] == '10344729@SXClass')
+    var sxClass = $(t).attr('onclick').split("'")[1].split('@')[0];
+    if (sxClass == '10344729' || sxClass == '11309207')
       return true;
     else
       return false;
