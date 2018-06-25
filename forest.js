@@ -6,11 +6,11 @@ $(document).ready(function(){
     if ($('#row_naimUchaLesn li').length == 106) {
       clearInterval(timer);
 
-      window.lesa = {};
+      window.forest = {};
 
-      window.lesa.li = $('#row_naimUchaLesn li');
+      window.forest.li = $('#row_naimUchaLesn li');
 
-      window.lesa.obj = {
+      window.forest.obj = {
         'Аргаяшское': ['Аргазинское', 'Аргаяшское', 'Кузнецкое', 'Кулуевское'],
         'Ашинское': ['Ашинское', 'Биянское', 'Миньярское', 'Симское', 'Укское'],
         'Брединское': ['Брединское', 'Кизильское', 'Кортубайское'],
@@ -35,7 +35,7 @@ $(document).ready(function(){
         'Шершневское': ['Белоусовское', 'Долгодеревенское', 'Еманжелинское', 'Еткульское', 'Каратабанское', 'Кременкульское', 'Смолинское']
       };
 
-      window.lesa.view = function(t){
+      window.forest.view = function(t){
         var li = '#row_naimUchaLesn li';
         $(li).hide();
 
@@ -49,12 +49,13 @@ $(document).ready(function(){
           clearInterval(timer);
           $('#row_naimLesnles li:not(:first-child)').each(function(){
             $(this).click(function(){
-              window.lesa.view(window.lesa.obj[$(this).text()]);
+              window.forest.view(window.forest.obj[$(this).text()]);
             });
           });
         }
       }, 100);
     }
+    window.forest.view([]);
   }, 100);
 
 });
