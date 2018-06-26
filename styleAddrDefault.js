@@ -2,21 +2,6 @@
 
 $(document).ready(function(){
 
-  var s = '<style>\
-.modal {\r\n  background-color: rgba(0, 0, 0, 0.25);\r\n}\r\n\
-.modal-content {\r\n  max-width: 1100px!important;\r\n}\r\n\
-.attr-field--layout > * {\r\n  display: block!important;\r\n\
-font-weight: bold!important;\r\n  width: 100%!important;\r\n\
-padding-left: 5%;\r\n  margin-bottom: 2vh;\r\n}\r\n\
-.attr-field--layout .radio {\r\n  display: inline-block;\r\n\
-margin-left: 5%;\r\n}\r\n\
-.attr-field--layout > *:first-child > * {\r\n  white-space: normal;\r\n}\r\n\
-.dropdown-menu {\r\n  top: 100%!important;\r\n}\r\n\
-.dropdown-menu > li:first-child {\r\n  display: none;\r\n}\r\n\
-</style>';
-
-  $('head').append($(s));
-
   var div = '<div class="table-actions" style="text-align: right;">\
     <a class="btn btn-default" title="Удалить адрес" onclick="deleteAddress(this);">\
     Очистить адрес</a></div>';
