@@ -37,6 +37,8 @@ $(document).ready(function(){
 
       window.forest.view = function(t){
         var li = '#row_naimUchaLesn li';
+        $('#row_naimUchaLesn li:first-child a').trigger('click');
+
         $(li).hide();
 
         $.each(t, function(i, v){
@@ -55,6 +57,10 @@ $(document).ready(function(){
         }
       }, 100);
     }
+
+    $('#row_naimLesnles li:first-child').hide();
+    $('#row_naimUchaLesn li:first-child').hide();
+
     window.forest.view([]);
   }, 100);
 
