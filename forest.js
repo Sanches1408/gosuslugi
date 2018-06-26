@@ -42,7 +42,11 @@ $(document).ready(function(){
         $(li).hide();
 
         $.each(t, function(i, v){
-          $(li+':contains("'+v+'")').show();
+          $.each($(li), function(){
+            if ($(this).text() == v) {
+              $(this).show();
+            }
+          });
         });
       };
 
