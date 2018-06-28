@@ -4,6 +4,7 @@ $(document).ready(function(){
 
   var s = '<style>\
 .modal {\r\n  background-color: rgba(0, 0, 0, 0.25);\r\n}\r\n\
+.modal-dialog--linkedobj {\r\n max-width: 900px!important;\r\n}\r\n\
 .modal-content {\r\n  max-width: 1100px!important;\r\n}\r\n\
 .attr-field--layout > * {\r\n  display: block!important;\r\n\
 font-weight: bold!important;\r\n  width: 100%!important;\r\n\
