@@ -122,6 +122,5 @@ margin-left: 5%;\r\n}\r\n\
       $($(v).parent()).append($(div)).append($(script));
     }
   });
-});
-
+  
 </script>
