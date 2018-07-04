@@ -1,42 +1,41 @@
 <script>
 
-var tr = '.modal:nth-last-of-type(2) .attr-list-layout tr';
-
 var timer = setInterval(function(){
-  if ($('p', $(tr)[2]).length == 151) {
+  console.log('timer');
+  debugger;
+  console.log(window.dictionary.tr);
+  console.log($(window.dictionary.tr));
+  console.log($(window.dictionary.tr)[2]);
+  console.log($('p', $(window.dictionary.tr)[2]).length);
+  if ($('p', $(window.dictionary.tr)[2]).length == 151) {
     clearInterval(timer);
     start();
   }
 }, 100);
 
 function start() {
-  $(tr+' li:contains("Выберите")').hide();
-  $(tr+':not(:first-child)').hide();
+  var w = window.dictionary;
+  console.log('start');
+  $(w.tr+' li:contains("Выберите")').hide();
+  $(w.tr+':not(:first-child)').hide();
 
-  $(tr+':first-child li:not(:first-child)').each(function(){
+  $(w.tr+':not(:last-of-type) li:not(:first-child)').each(function(){
     $(this).click(function(){
       console.log('click');
-      $(tr+':last-of-type').hide();
-      $(tr+':nth-child(2)').hide();
-      $(tr+' li:contains("Выберите") a').trigger('click');
-      $(tr+' p input:checked').trigger('click');
-      $(tr+':last-of-type p:not(:first-of-type)').hide();
-      $(tr+':nth-child(2) li:not(:first-child)').hide();
-      var lvl = window.dictionary.findOneLvl($(this).text());
-      console.log(lvl);
+      //window.dictionary.hide(true);
+      //var lvl = window.dictionary.findOneLvl($(this).text());
+      w.show(w.find($(this).text()));
+      /*console.log(lvl);
       if (lvl[1].length) {
         $(lvl[0]).show();
         $.each(lvl[1], function(i, v){ $(v).show(); });
-      }
+      }*/
     });
   });
-
+/*
   $(tr+':nth-child(2) li:not(:first-child)').each(function(){
     $(this).click(function(){
-      $(tr+':last-of-type').hide();
-      $(tr+':nth-child(2) li:contains("Выберите") a').trigger('click');
-      $(tr+' p input:checked').trigger('click');
-      $(tr+':last-of-type p:not(:first-of-type)').hide();
+      window.dictionary.hide();
       var lvl = window.dictionary.findTwoLvl($(this).text());
       console.log(lvl);
       if (lvl[1].length) {
@@ -45,11 +44,11 @@ function start() {
       }
     });
   });
-
-  var but = '<p class="attr-value checkbox">\
+*/
+  var but = '<p class="attr-value checkbox" style="margin: 2vh 0;">\
     <input id="allChoice" type="checkbox" class="attr-value-el--filled" onclick="window.dictionary.checkAll(this);">\
-    <label for="allChoice"><span>Выбрать все</span></label></p>';
-  $(tr+':last-of-type').append(but);
+    <label for="allChoice"><span style="font-weight: bold; font-size: 14px;">Выбрать все</span></label></p>';
+  $(w.tr+':last-of-type .checkbox:first-of-type').before($(but));
 }
 
 </script>
