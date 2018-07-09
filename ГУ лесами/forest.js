@@ -1,14 +1,12 @@
 <script>
 
-$(document).ready(function(){
-
   var timer = setInterval(function(){
-    if ($('#row_naimUchaLesn li').length == 106) {
+    if ($('.modal #row_naimUchaLesn li').length == 106) {
       clearInterval(timer);
 
       window.forest = {};
 
-      window.forest.li = $('#row_naimUchaLesn li');
+      window.forest.li = $('.modal #row_naimUchaLesn li');
 
       window.forest.obj = {
         'Аргаяшское': ['Аргазинское', 'Аргаяшское', 'Кузнецкое', 'Кулуевское'],
@@ -36,8 +34,8 @@ $(document).ready(function(){
       };
 
       window.forest.view = function(t){
-        var li = '#row_naimUchaLesn li';
-        $('#row_naimUchaLesn li:first-child a').trigger('click');
+        var li = '.modal #row_naimUchaLesn li';
+        $('.modal #row_naimUchaLesn li:first-child a').trigger('click');
 
         $(li).hide();
 
@@ -51,23 +49,21 @@ $(document).ready(function(){
       };
 
       timer = setInterval(function(){
-        if ($('#row_naimLesnles li:not(:first-child)').length == 22) {
+        if ($('.modal #row_naimLesnles li:not(:first-child)').length == 22) {
           clearInterval(timer);
-          $('#row_naimLesnles li:not(:first-child)').each(function(){
+          $('.modal #row_naimLesnles li:not(:first-child)').each(function(){
             $(this).click(function(){
               window.forest.view(window.forest.obj[$(this).text()]);
             });
           });
+
+          $('.modal #row_naimLesnles li:first-child').hide();
+          $('.modal #row_naimUchaLesn li:first-child').hide();
+
+          window.forest.view([]);
         }
       }, 100);
     }
-
-    $('#row_naimLesnles li:first-child').hide();
-    $('#row_naimUchaLesn li:first-child').hide();
-
-    window.forest.view([]);
   }, 100);
-
-});
 
 </script>
