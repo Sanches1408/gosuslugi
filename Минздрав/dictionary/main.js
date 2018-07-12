@@ -17,7 +17,10 @@
           bool = true;
         }
         window.dictionary.hide(bool);
-        if (i == 6) break;
+        if (i == 6) {
+          $(window.dictionary.tr+':nth-child(2)').hide();
+          break;
+        }
         var v = w[i].arr;
         for (var j = 0; j < v.length; j++) {
           if (bool) {
