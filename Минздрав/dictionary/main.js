@@ -3,7 +3,7 @@
   $(document).ready(function(){
 
     function get(arr) {
-      return arr.map(function(v, i, a) {
+      return arr.map(function(v) {
         return v.name;
       });
     }
@@ -24,11 +24,11 @@
             if (i == 4) {
               $(window.dictionary.tr+':nth-child(2)').hide();
             }
-            show((i == 4) ? [v, false] : [window.dictionary.get(v), bool]);
+            show((i == 4) ? [v, 3] : [window.dictionary.get(v), 2]);
             break;
           } else {
             if (v[j].name == t) {
-              show([v[j].arr, bool]);
+              show([v[j].arr, 3]);
               bool = true;
               break;
             }
@@ -39,11 +39,8 @@
     }
 
     function show([arr, b]) {
-      if (b) {
-        $(window.dictionary.tr+':nth-child(2)').show();
-      } else {
-        $(window.dictionary.tr+':nth-child(3)').show();
-      }
+      $(window.dictionary.tr+':nth-child('+b+')').show();
+
       arr.forEach(function(v, i){
         $(window.dictionary.tr+' span').each(function(){
           if ($(this).text() == v) {
