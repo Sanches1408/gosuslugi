@@ -66,7 +66,61 @@
 	      +'.attr-field--layout .attr-label-title-wrapper { white-space: normal; }\r\n'
       );
     }
+    /*
+    /
+    /
+    /   ***ADDRESS***
+    /
+    /
+    */
+    function addr(v, a) {
+      if (typeof this.addr[v] == 'function') {
+        this.addr[v](a);
+      } else {
+        switch (v) {
+          case 'default':
+            with (this.addr) {
+              buttonDelete(a);
+              timerButton();
+              timerFormat();
+            };
+            break;
+          default:
+            for (method in this.addr) {
+              if (method != actionDelete)
+                this.addr[method]();
+            }
+        }
+      }
+    }
 
+    function actionDelete(v) {
+      if (!v) return;
+      var d = $(v).closest('.attr-field');
+      $(d).removeClass('attr-field--filled');
+      $('input', $(d)).removeClass().val('');
+      $('textarea', $(d)).removeClass('attr-value-el--filled').val('');
+    }
+
+    function addButton() {
+      clearInterval(this.timerButton);
+      this.timerButton = setInterval(function(){
+        $('textarea').each(function(){
+          var a = window.M.addr;
+          var t = $(this).attr('onclick').split("'")[1];
+          if ((t == a.arg[0] || t == a.arg[1]) && !+$(this).attr('butDel')) {
+            $($(this).closest('.attr-field')).append($(a.element));
+            $(this).attr('butDel', '1');
+          }
+        });
+      }, 100);
+    }
+
+    function addFormat() {
+
+    }
+
+    /* ---===STYLE===--- */
     $('head').append($('<style id="ogbuStyle">'));
     style.element = $('#ogbuStyle');
     style.addStyle = addStyle;
@@ -76,8 +130,21 @@
     style.modalDialogWidth = modalDialogWidth;
     style.radio = radio;
 
-    modern.version = '1.0.0';
+    /* ---===ADDRESS===--- */
+    addr.element = '<div class="table-actions" style="text-align: right; padding: 0;">'
+      +'<a class="btn btn-default" title="Удалить адрес" onclick="window.M.addr.actionDelete(this);">'
+      +'Очистить адрес</a></div>',
+    addr.arg = ['10344729@SXClass', '11309207@SXClass'];
+    addr.timerButton = null;
+    addr.timerFormat = null;
+
+    addr.actionDelete = actionDelete;
+    addr.addButton = addButton;
+    addr.addFormat = addFormat;
+
+    modern.version = '1.0.1';
     modern.style = style;
+    modern.addr = addr;
     window.M = modern;
   }
 }());
