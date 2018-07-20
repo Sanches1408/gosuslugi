@@ -23,6 +23,13 @@
               radio();
             };
             break;
+          case 'mini':
+            with(this.style) {
+              hideSearch();
+              hideChoice();
+              radio();
+            }
+            break;
           default:
             for (method in this.style) {
               this.style[method]();
@@ -66,6 +73,20 @@
 	      +'.attr-field--layout .attr-label-title-wrapper { white-space: normal; }\r\n'
       );
     }
+
+    function hideSearch(v){
+      var p = (v) ? v+' ' : '';
+      this.addStyle(
+        p + '.bs-searchbox { display: none; }\r\n'
+      );
+    }
+
+    function hideChoice() {
+      clearInterval(this.timerChoice);
+      this.timerChoice = setInterval(function(){
+        $($('.text:contains("Выберите")').closest('li')).hide();
+      }, 100);
+    }
     /*
     /
     /
@@ -87,7 +108,7 @@
             break;
           default:
             for (method in this.addr) {
-              if (method != actionDelete)
+              if (method != 'actionDelete')
                 this.addr[method]();
             }
         }
@@ -117,21 +138,101 @@
     }
 
     function addFormat() {
+      setInterval(this.timerFormat);
+      this.timerFormat = setInterval(function(){
+        if ($('#row_addrText').length) {
+          clearInterval(this.timerFormat);
 
+        }
+      }, 100);
+    }
+    /*
+    /
+    /
+    /   ***DATE AND TIME***
+    /
+    /
+    */
+    // Функция для выпадающего списка, где поля - время в виде: 09:00, 15:00.
+    // Принимает коды справочников, сравнивает оба поля и убирает возможность
+    // выбрать меньшее время во втором и большее в первом
+    function dateAndTime(v, id1, id2) {
+      if (typeof this.dateAndTime[v] == 'function') {
+        this.dateAndTime[v](id1, id2);
+      } else {
+        switch (v) {
+          case 'default':
+            with (this.dateAndTime) {
+              timeFromDictionary(id1, id2);
+            };
+            break;
+          default:
+            for (method in this.dateAndTime) {
+              this.dateAndTime[method]();
+            }
+        }
+      }
     }
 
+    function timeFromDictionary(id1, id2, b) {
+      new Promise(function(resolve){
+        readyList(id1, resolve);
+      }).then(function(){
+        new Promise(function(resolve){
+          readyList(id2, resolve);
+        }).then(function(){
+          var list1 = $('#row_'+id1+' li:not(:first-child)'),
+              list2 = $('#row_'+id2+' li:not(:first-child)');
+          if (b) {
+            
+          }
+          $.each(list1, function(i, v){
+            $(v).click(function(){
+              var index = $(this).attr('data-original-index');
+              list2.show();
+              $.each(list2, function(i, v){
+                if ($(v).attr('data-original-index') <= index)
+                  $(v).hide();
+              });
+            });
+          });
+        });
+      });
+    }
+
+    function readyList(id, resolve){
+      var maxIter = 2, iter = maxIter, li = 0;
+      clearInterval(this.timerList);
+      this.timerList = setInterval(function(){
+        if (iter) {
+          var l = $('#row_'+id+' li').length;
+          if (l != li) {
+            iter = maxIter;
+            li = l;
+          } else {
+            iter--;
+          }
+        } else {
+          clearInterval(this.timerList);
+          if (resolve) resolve(1);
+        }
+      }, 100);
+    }
     /* ---===STYLE===--- */
     $('head').append($('<style id="ogbuStyle">'));
     style.element = $('#ogbuStyle');
     style.addStyle = addStyle;
+    style.timerChoice = null;
 
     style.modalBackground = modalBackground;
     style.modalWidth = modalWidth;
     style.modalDialogWidth = modalDialogWidth;
     style.radio = radio;
+    style.hideSearch = hideSearch;
+    style.hideChoice = hideChoice;
 
     /* ---===ADDRESS===--- */
-    addr.element = '<div class="table-actions" style="text-align: right; padding: 0;">'
+    addr.element = '<div class="table-actions" style="text-align: right; padding: 2vh 0 0;">'
       +'<a class="btn btn-default" title="Удалить адрес" onclick="window.M.addr.actionDelete(this);">'
       +'Очистить адрес</a></div>',
     addr.arg = ['10344729@SXClass', '11309207@SXClass'];
@@ -142,9 +243,16 @@
     addr.addButton = addButton;
     addr.addFormat = addFormat;
 
+    /* ---===DATE AND TIME===--- */
+    dateAndTime.timeFromDictionary = timeFromDictionary;
+    dateAndTime.readyList = readyList;
+    dateAndTime.timerList = null;
+
+    /* ---===MAIN===---*/
     modern.version = '1.0.1';
     modern.style = style;
     modern.addr = addr;
+    modern.dateAndTime = dateAndTime;
     window.M = modern;
   }
 }());
