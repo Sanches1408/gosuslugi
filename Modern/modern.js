@@ -6,6 +6,30 @@
     /*
     /
     /
+    /   ***MAIN***
+    /
+    /
+    */
+    function ready(elem, resolve){
+      var maxIter = 5, iter = maxIter, el = 0;
+      M.timerReady[M.timerIndex++] = setInterval(function(index){
+        if (iter) {
+          var l = $(elem).length;
+          if (l != el) {
+            iter = maxIter;
+            el = l;
+          } else {
+            iter--;
+          }
+        } else {
+          clearInterval(M.timerReady[index]);
+          if (resolve) resolve(1);
+        }
+      }, 100, M.timerIndex-1);
+    }
+    /*
+    /
+    /
     /   ***STYLE***
     /
     /
@@ -87,6 +111,38 @@
         $($('.text:contains("Выберите")').closest('li')).hide();
       }, 100);
     }
+    // Фиксит ошибку отображения заголовка у группы, у которой нет атрибутов
+    // принимает значения: номер группы, после которой находится проблемная группа
+    // и текст заголовка
+    function fixBySection(n, t) {
+      new Promise(function(resolve){
+        M.ready('.subgroup-num', resolve);
+      }).then(function(){
+        new Promise(function(resolve){
+          var timer = setInterval(function(){
+            if (+$($('.subgroup-num')[0]).text()) {
+              clearInterval(timer);
+              if (resolve) resolve(1);
+            }
+          }, 100);
+        }).then(function(){
+          $('.subgroup-num').each(function(){
+            if (+$(this).text() == n) {
+              var sectionN = $('<div>').addClass('subgroup-num').text(n+1),
+                sectionT = $('<div>')
+                .addClass('subgroup-title subgroup-title__top')
+                .append($('<span>').addClass('subgroup-title-text').text(t));
+              $(this).parent().next().prepend(sectionT).prepend(sectionN);
+            }
+          });
+        });
+      });
+    }
+
+    function require(elem, bool) {
+      $('#id_'+elem).attr('ismandatory', bool.toString());
+      $('#caption_'+elem)[(bool ? 'add' : 'remove')+'Class']('required');
+    }
     /*
     /
     /
@@ -123,7 +179,7 @@
       $('textarea', $(d)).removeClass('attr-value-el--filled').val('');
     }
 
-    function addButton() {
+    function addButton(b, arg) {
       clearInterval(this.timerButton);
       this.timerButton = setInterval(function(){
         $('textarea').each(function(){
@@ -132,19 +188,54 @@
           if ((t == a.arg[0] || t == a.arg[1]) && !+$(this).attr('butDel')) {
             $($(this).closest('.attr-field')).append($(a.element));
             $(this).attr('butDel', '1');
+
+            if (b) {
+              $(this).click(function(){
+                M.addr.formatLink = $(this);
+                M.addr.text = null;
+                new Promise(function(resolve){
+                  M.ready('[id*="webWmAddress"] .subgroups-list tbody > tr', resolve);
+                }).then(function(){
+                  var v = $('#id_addrText').val().replace(/\s/g, '');
+                  if (v == '') {
+                    $.each(arg, function(i, v){
+                      M.style.require(v, true);
+                    });
+                  } else {
+                    M.addr.text = v;
+                  }
+                  $('#id_addrText').change(function(){
+                    M.addr.text = $(this).val().replace(/\s/g, '');
+                    var bool = true;
+                    if (M.addr.text && M.addr.text != '') {
+                      bool = false;
+                    }
+                    $.each(arg, function(i, v){
+                      M.style.require(v, bool);
+                    });
+                  });
+                  var save = $('[id*="webWmAddress"] button:contains("Сохранить")');
+                  save.attr('onclick', 'M.addr.save(); '+save.attr('onclick'));
+                });
+              });
+            }
           }
         });
       }, 100);
     }
 
-    function addFormat() {
-      setInterval(this.timerFormat);
-      this.timerFormat = setInterval(function(){
-        if ($('#row_addrText').length) {
-          clearInterval(this.timerFormat);
-
-        }
-      }, 100);
+    function save() {
+      if (M.addr.timerSave) clearInterval(M.addr.timerSave);
+      else if (M.addr.text && M.addr.text != '') {
+        M.addr.timerSave = setInterval(function(){
+          console.log('timer');
+          var v = M.addr.formatLink.val(), v2 = M.addr.text;
+          if (v.search(v2) != -1 && v.length != v2.length) {
+            clearInterval(M.addr.timerSave);
+            M.addr.formatLink.val(v2);
+          }
+        }, 100);
+      }
     }
     /*
     /
@@ -153,9 +244,6 @@
     /
     /
     */
-    // Функция для выпадающего списка, где поля - время в виде: 09:00, 15:00.
-    // Принимает коды справочников, сравнивает оба поля и убирает возможность
-    // выбрать меньшее время во втором и большее в первом
     function dateAndTime(v, id1, id2) {
       if (typeof this.dateAndTime[v] == 'function') {
         this.dateAndTime[v](id1, id2);
@@ -173,18 +261,20 @@
         }
       }
     }
-
+    // Функция для выпадающего списка, где поля - время в виде: 09:00, 15:00.
+    // Принимает коды справочников, сравнивает оба поля и убирает возможность
+    // выбрать меньшее время во втором
     function timeFromDictionary(id1, id2, b) {
       new Promise(function(resolve){
-        readyList(id1, resolve);
+        M.ready('#row_'+id1+' li', resolve);
       }).then(function(){
         new Promise(function(resolve){
-          readyList(id2, resolve);
+          M.ready('#row_'+id2+' li', resolve);
         }).then(function(){
           var list1 = $('#row_'+id1+' li:not(:first-child)'),
               list2 = $('#row_'+id2+' li:not(:first-child)');
           if (b) {
-            
+            $(list1[list1.length-1]).hide();
           }
           $.each(list1, function(i, v){
             $(v).click(function(){
@@ -199,25 +289,6 @@
         });
       });
     }
-
-    function readyList(id, resolve){
-      var maxIter = 2, iter = maxIter, li = 0;
-      clearInterval(this.timerList);
-      this.timerList = setInterval(function(){
-        if (iter) {
-          var l = $('#row_'+id+' li').length;
-          if (l != li) {
-            iter = maxIter;
-            li = l;
-          } else {
-            iter--;
-          }
-        } else {
-          clearInterval(this.timerList);
-          if (resolve) resolve(1);
-        }
-      }, 100);
-    }
     /* ---===STYLE===--- */
     $('head').append($('<style id="ogbuStyle">'));
     style.element = $('#ogbuStyle');
@@ -230,6 +301,8 @@
     style.radio = radio;
     style.hideSearch = hideSearch;
     style.hideChoice = hideChoice;
+    style.fixBySection = fixBySection;
+    style.require = require;
 
     /* ---===ADDRESS===--- */
     addr.element = '<div class="table-actions" style="text-align: right; padding: 2vh 0 0;">'
@@ -238,21 +311,25 @@
     addr.arg = ['10344729@SXClass', '11309207@SXClass'];
     addr.timerButton = null;
     addr.timerFormat = null;
+    addr.text = null;
+    addr.formatLink = null;
+    addr.timerSave = null;
 
     addr.actionDelete = actionDelete;
     addr.addButton = addButton;
-    addr.addFormat = addFormat;
+    addr.save = save;
 
     /* ---===DATE AND TIME===--- */
     dateAndTime.timeFromDictionary = timeFromDictionary;
-    dateAndTime.readyList = readyList;
-    dateAndTime.timerList = null;
 
     /* ---===MAIN===---*/
-    modern.version = '1.0.1';
+    modern.version = '1.0.4';
     modern.style = style;
     modern.addr = addr;
     modern.dateAndTime = dateAndTime;
+    modern.ready = ready;
+    modern.timerReady = [];
+    modern.timerIndex = 0;
     window.M = modern;
   }
 }());

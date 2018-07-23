@@ -5,9 +5,8 @@ if (!this.M) {
   .done(function(){
     $('body').append('<script src="scripts/ogbu/modern.js" async></script>');
     function script() {
-      M.style('mini');
-      //M.dateAndTime('timeFromDictionary', 'SubG23StartTime', 'SubG23FinishTime');
-      M.dateAndTime('readyList', 'SubG23StartTime');
+      // Место для Вашего кода
+      
     }
     $('body').append($('<script>').text(';('+script.toString()+'());'));
   });
