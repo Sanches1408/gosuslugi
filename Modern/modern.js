@@ -176,7 +176,7 @@
       var d = $(v).closest('.attr-field');
       $(d).removeClass('attr-field--filled');
       $('input', $(d)).removeClass().val('');
-      $('textarea', $(d)).removeClass('attr-value-el--filled').val('');
+      $('textarea', $(d)).removeClass('attr-value-el--filled').val('').attr('shortAddr','');
     }
 
     function addButton(b, arg) {
@@ -190,60 +190,38 @@
             $(this).attr('butDel', '1');
 
             if (b) {
+              function o(v) {
+                v = $(v).val().replace(/\s/g, '');
+                if (v == '') v = null;
+                return v;
+              }
+              $(this).change(function(){
+                if ($(this).attr('shortAddr') != '')
+                  $(this).val($(this).attr('shortAddr'));
+              });
               $(this).click(function(){
-                M.addr.formatLink = $(this);
-                M.addr.text = null;
+                a.formatLink = $(this);
                 new Promise(function(resolve){
                   M.ready('[id*="webWmAddress"] .subgroups-list tbody > tr', resolve);
                 }).then(function(){
-                  var v = $('#id_addrText').val().replace(/\s/g, '');
-                  if (v == '') {
+                  function n(b) {
                     $.each(arg, function(i, v){
-                      M.style.require(v, true);
+                      window.M.style.require(v, (b ? false : true));
                     });
-                  } else {
-                    M.addr.text = v;
                   }
+                  n(o('#id_addrText'));
                   $('#id_addrText').change(function(){
-                    M.addr.text = $(this).val().replace(/\s/g, '');
-                    var bool = true;
-                    if (M.addr.text && M.addr.text != '') {
-                      bool = false;
-                    }
+                    a.formatLink.attr('shortAddr', o(this) ? o(this) : '');
                     $.each(arg, function(i, v){
-                      M.style.require(v, bool);
+                      n(o('#id_addrText'));
                     });
                   });
-                  var save = $('[id*="webWmAddress"] button:contains("Сохранить")');
-                  save.attr('onclick', 'M.addr.save(); '+save.attr('onclick'));
                 });
               });
             }
           }
         });
       }, 100);
-    }
-
-    function save() {
-      if (M.addr.timerSave) {
-        clearInterval(M.addr.timerSave);
-        M.addr.timerSave = null;
-      }
-      else if (M.addr.text && M.addr.text != '') {
-        var iter = 3;
-        M.addr.timerSave = setInterval(function(){
-          var v = M.addr.formatLink.val(), v2 = M.addr.text;
-          if (v.search(v2) != -1 && v.length != v2.length) {
-            if (iter) {
-              iter--;
-            } else {
-              clearInterval(M.addr.timerSave);
-              M.addr.timerSave = null;
-              M.addr.formatLink.val(v2);
-            }
-          }
-        }, 100);
-      }
     }
     /*
     /
@@ -318,20 +296,16 @@
       +'Очистить адрес</a></div>',
     addr.arg = ['10344729@SXClass', '11309207@SXClass'];
     addr.timerButton = null;
-    addr.timerFormat = null;
-    addr.text = null;
     addr.formatLink = null;
-    addr.timerSave = null;
 
     addr.actionDelete = actionDelete;
     addr.addButton = addButton;
-    addr.save = save;
 
     /* ---===DATE AND TIME===--- */
     dateAndTime.timeFromDictionary = timeFromDictionary;
 
     /* ---===MAIN===---*/
-    modern.version = '1.0.4';
+    modern.version = '1.0.5';
     modern.style = style;
     modern.addr = addr;
     modern.dateAndTime = dateAndTime;
