@@ -49,6 +49,7 @@
             break;
           case 'mini':
             with(this.style) {
+              modalBackground();
               hideSearch();
               hideChoice();
               radio();
@@ -156,11 +157,6 @@
       } else {
         switch (v) {
           case 'default':
-            with (this.addr) {
-              buttonDelete(a);
-              timerButton();
-              timerFormat();
-            };
             break;
           default:
             for (method in this.addr) {
