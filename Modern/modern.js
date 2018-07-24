@@ -225,14 +225,22 @@
     }
 
     function save() {
-      if (M.addr.timerSave) clearInterval(M.addr.timerSave);
+      if (M.addr.timerSave) {
+        clearInterval(M.addr.timerSave);
+        M.addr.timerSave = null;
+      }
       else if (M.addr.text && M.addr.text != '') {
+        var iter = 3;
         M.addr.timerSave = setInterval(function(){
-          console.log('timer');
           var v = M.addr.formatLink.val(), v2 = M.addr.text;
           if (v.search(v2) != -1 && v.length != v2.length) {
-            clearInterval(M.addr.timerSave);
-            M.addr.formatLink.val(v2);
+            if (iter) {
+              iter--;
+            } else {
+              clearInterval(M.addr.timerSave);
+              M.addr.timerSave = null;
+              M.addr.formatLink.val(v2);
+            }
           }
         }, 100);
       }
