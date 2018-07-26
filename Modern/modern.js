@@ -287,6 +287,8 @@
       e = e ? e : '[data-grpid="qPetit"]';
       var note = '<div class="group-promt group-promt__qPetit alert alert-warning" data-grpid="qPetit">'
         +'<strong class="alert-title">Обратите внимание</strong><span><p class="alert">'+v+'</p></span></div>';
+      M.style.addStyle('.alert > a { display: block; margin: 2vh 0 0 0; }\r\n'
+        +'.alert { margin-bottom: 0; }');
       $(e).prepend(note);
     }
     /* ---===STYLE===--- */
