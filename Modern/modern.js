@@ -157,6 +157,11 @@
       } else {
         switch (v) {
           case 'default':
+            with (this.addr) {
+              buttonDelete(a);
+              timerButton();
+              timerFormat();
+            };
             break;
           default:
             for (method in this.addr) {
@@ -271,6 +276,19 @@
         });
       });
     }
+    /*
+    /
+    /
+    /   ***NOTICE***
+    /
+    /
+    */
+    function notice(v, e) {
+      e = e ? e : '[data-grpid="qPetit"]';
+      var note = '<div class="group-promt group-promt__qPetit alert alert-warning" data-grpid="qPetit">'
+        +'<strong class="alert-title">Обратите внимание</strong><span><p class="alert">'+v+'</p></span></div>';
+      $(e).prepend(note);
+    }
     /* ---===STYLE===--- */
     $('head').append($('<style id="ogbuStyle">'));
     style.element = $('#ogbuStyle');
@@ -301,11 +319,12 @@
     dateAndTime.timeFromDictionary = timeFromDictionary;
 
     /* ---===MAIN===---*/
-    modern.version = '1.0.5';
+    modern.version = '1.0.6';
     modern.style = style;
     modern.addr = addr;
     modern.dateAndTime = dateAndTime;
     modern.ready = ready;
+    modern.notice = notice;
     modern.timerReady = [];
     modern.timerIndex = 0;
     window.M = modern;
