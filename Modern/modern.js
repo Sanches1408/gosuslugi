@@ -159,8 +159,6 @@
           case 'default':
             with (this.addr) {
               buttonDelete(a);
-              timerButton();
-              timerFormat();
             };
             break;
           default:
