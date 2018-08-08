@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script id="helloScript">
+    a = 'https://gosuslugi74.ru/pgu/services/info.htm?category=15707@egOrganization&id=7546@egService&target={NUMBER}@egServiceTarget';
+    n = '';
+    for (i = 1; i < 13; i++) {
+      //if ($('#title_G14Check'+i).prop('checked')) {
+        if (i == 5 || i == 6 || i == 12) {
+          a = a.replace('{NUMBER}', '12850');
+        } else {
+          a = a.replace('{NUMBER}', '12849');
+        }
+      //}
+    }
+    if (a.search('{NUMBER}') == -1) {
+      out = '<p><a href="'+a+'" target="_blank">Перейти на страницу с более подробной информацией</a></p>';
+    } else {
+      temp = a.replace('{NUMBER}', '12849');
+      a = a.replace('{NUMBER}', '12850');
+
+      out = '<p>1. <a href="'+temp+'" target="_blank">Заявление (гос. пошлина 750 р.)</a></p>'
+    +'<p>2. <a href="'+a+'" target="_blank">Заявление (гос. пошлина 3500 р.)</a></p>';
+    }
+
+    out = '<div><p>Для отправки заявления в Министерство здравоохранения'
+      +' Челябинской области необходимо будет оплатить государственную пошлину</p>'+out+'</div>';
+    //$($('#helloScript').parent()).append($(out));
+  </script>
+</body>
+</html>
