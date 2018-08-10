@@ -72,16 +72,31 @@
         }
       }, 100);
     }
+
+    /**
+     * isArray() проверяет допустимое значение и создает из него архив
+     *
+     * @param <String> or <Array> v
+     * @param v проверяемый аргумент
+     */
+    function isArray(v) {
+      if (typeof v === 'string') v = [v];
+      else if (!(v instanceof Array) || !v) v = false;
+      return v;
+    }
     /**
      * style() применяет стилизацию для элементов страницы
      *
      * @param <String> v
      * @param v: название функции или строковый параметр,
      * в случае отсутствия аргумента вызываются все методы style()
+     *
+     * @param <String> or <Boolean> p
+     * @param p: параметр передаваемый в метод
      */
-    function style(v) {
+    function style(v, p) {
       if (typeof this.style[v] == 'function') {
-        this.style[v]();
+        this.style[v](p);
       } else {
         switch (v) {
           case 'default':
@@ -110,7 +125,7 @@
     // TODO FIXME: dublication on adding style
     function addStyle(v) {
       var t = this.element;
-      if (t.text().search(v) == -1)
+      if (t.text().indexOf(v) == -1)
         t.text(t.text() + v);
     }
 
@@ -170,13 +185,17 @@
     /**
      * hideSearch() скрывает блок поиска у выпадающего списка
      *
-     * @param <String> v
-     * @param v: ccs идентификатор родительского элемента
+     * @param <String> or <Array> v
+     * @param v: код родительского атрибута
      */
     function hideSearch(v){
-      this.addStyle(
-        (v ? v+' ' : '') + '.modal-content .bs-searchbox { display: none; }\r\n'
-      );
+      if (v = M.isArray(v)) {
+        $.each(v, function(i){
+          this.addStyle(
+            (v[i] ? '#row_'+v[i] : '') + ' .bs-searchbox { display: none; }\r\n'
+          );
+        });
+      }
     }
 
     /**
