@@ -451,7 +451,7 @@
      * @param <Function> deleteModern
      * @param deleteModern удаляет все, что добавили через модуль
      */
-    modern.version = '1.0.6';
+    modern.version = '1.0.7';
     modern.ready = ready;
     modern.isLoad = isLoad;
     modern.deleteModern = deleteModern;
