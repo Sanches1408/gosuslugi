@@ -8,19 +8,50 @@
      */
     function modern(v) {
       if (v) {
-        let out = $('<div>').addClass('out');
-        let command = $('<div>').addClass('command');
-        $('body').append($('<div>').addClass('terminal').append(out).append(command));
-        window.M.style.addStyle(
-          '.terminal { width: 300px; height: 400px; padding: 10px; background: black; opacity: 0.5; '
-          +'position: fixed; left: 0; top: calc(50% - 200px); z-index: 999; }\r\n'
-          +'.terminal:hover { opacity: 1; background: rgba(0, 0, 0, 0.5); }'
-          +'.terminal::-webkit-scrollbar { width: 0; }'
-          +'.out { width: 100%; height: 329px; background: url("scripts/ogbu/backgroundOut.png"); '
-          +'border-bottom: 1px solid grey; box-shadow: inset 2px 2px 15px black, inset -2px -2px 15px black; }\r\n'
-          +'.command { width: 100%; height: 50px; background: white; }\r\n'
-        );
+        let header = $('<header>');
+        let section = $('<section>')
+          .attr('onclick', '(function(){if(event.target.tagName != "P")$("input", $(this)).focus();}())')
+          .append(
+            $('<input>').attr('type', 'text')
+            .attr('onkeyup', '(function(){if(event.keyCode==13){M.terminal($(".terminal input").val(), true);}}())')
+          );
+        $('body').append($('<div>').addClass('terminal').append(header).append(section));
+        $('head').append($('<link>').attr({'rel':'stylesheet', 'href':'scripts/ogbu/style.css'}));
+        $('.terminal input').focus(function(){
+          $('.terminal').css('opacity', '1');
+        }).blur(function(){
+          $('.terminal').css('opacity', '.5');
+        });
+        M.terminal('Терминал запущен');
       }
+    }
+
+    function terminal(v, b) {
+      if (b) {
+        v = M.terminal.command(v);
+      }
+      console.log(v);
+      console.dir(M.terminal.stack);
+      if (v) M.terminal.stack.push(v);
+      let input = $('.terminal input');
+      if (input.length) {
+        if (M.terminal.stack.length) {
+          $.each(M.terminal.stack, function(i, v){
+            setTimeout(function(){
+              input.before($('<p>').html(v))
+            }, (i+1)*100);
+          });
+          $('.terminal input').val('').focus();
+          M.terminal.stack = [];
+        }
+      }
+    }
+
+    function command(v) {
+      switch (v) {
+        default: v = 'Нет такой команды: "'+v+'". Воспользуйтесь командой: "help".';
+      }
+      return v;
     }
 
     function ready(elem, resolve){
@@ -68,6 +99,8 @@
           $('[src*="modern.js"]').next().remove();
           $('[src*="modern.js"]').remove();
           $('#ogbuStyle').remove();
+          $('.terminal').remove();
+          clearInterval(M.style.timerChoice);
           delete window.M;
         }
       }, 100);
@@ -111,8 +144,9 @@
           case 'mini':
             with(this.style) {
               modalBackground();
-              radio();
+              radio(p);
             }
+            M.terminal('Применена стилизация: "mini".');
             break;
           default:
             for (method in this.style) {
@@ -122,7 +156,12 @@
       }
     }
 
-    // TODO FIXME: dublication on adding style
+    /**
+     * addStyle() добавляет стиль в контейнер #ogbuStyle
+     *
+     * @param <String> v
+     * @param v строка css стилизации
+     */
     function addStyle(v) {
       var t = this.element;
       if (t.text().indexOf(v) == -1)
@@ -140,6 +179,7 @@
         '.modal-backdrop { display: none!important; }\r\n'
         +'.modal { background: '+(v ? v : 'rgba(0, 0, 0, .5)')+'!important; }\r\n'
       );
+      M.terminal('[modalBackground] '+(v ? v : 'rgba(0, 0, 0, .5)'));
     }
 
     /**
@@ -153,6 +193,7 @@
         '.modal-dialog--petition > .modal-content { max-width: '
         +(v ? v : '80%')+'!important; width: '+(v ? v : '80%')+'!important; }\r\n'
       );
+      M.terminal('[modalWidth] args: '+(v ? v : '80%'));
     }
 
     /**
@@ -165,6 +206,7 @@
       this.addStyle(
         '.modal .modal-dialog { max-width: '+(v ? v : '80%')+'!important; }\r\n'
       );
+      M.terminal('[modalDialogWidth] args: '+(v ? v : '80%'));
     }
 
     /**
@@ -180,6 +222,7 @@
         +(v ? ' font-weight: bold;' : '')+' }\r\n.attr-field--layout > *:nth-child(2) { margin-left: 5%; }\r\n'
 	      +'.attr-field--layout .attr-label-title-wrapper { white-space: normal; }\r\n'
       );
+      M.terminal('[radio] args: '+(v ? 'font-weight: bold' : 'нет аргументов.'));
     }
 
     /**
@@ -191,20 +234,41 @@
     function hideSearch(v){
       if (v = M.isArray(v)) {
         $.each(v, function(i){
-          this.addStyle(
+          M.style.addStyle(
             (v[i] ? '#row_'+v[i] : '') + ' .bs-searchbox { display: none; }\r\n'
           );
         });
       }
+      M.terminal('[hideSearch] args: '+(v ? JSON.stringify(v) : 'нет аргументов.'));
     }
 
-    /**
-     * hideChoice() скрывает поле "Выберите" у выпадающих списков
-     * TODO FIXME: таймер остается и выводит ошибки после отправки формы
-     */
     function hideChoice() {
+      /*
+      var f = function f(v){
+        let e = $('#count'+v+'HideChoice');
+
+        M.terminal('Элемент $("#count'+v+'HideChoice") '+(e.length ? '' : 'не')+' найден.');
+
+        if (e.length) {
+          if (v == 'Element') {
+            return +e.text($('.text:contains("Выберите")').length);
+          } else {
+            return +e.text(+e.text()+1);
+          }
+        } else return 0;
+      }
+      */
       clearInterval(this.timerChoice);
       this.timerChoice = setInterval(function(){
+/*
+        let c = [f('Time'), f('Element')];
+        M.terminal('\tЗначение: '+![f('Time'), f('Element')][0].toString());
+        if (![f('Time'), f('Element')][0]) {
+          M.terminal('[hideChoice] message: найдено элементов <span id="countElementHideChoice">'
+            +$('.text:contains("Выберите")').length+'</span>'
+            +', количество проходов <span id="countTimeHideChoice">0</span>.');
+        }
+*/
         $($('.text:contains("Выберите")').closest('li')).hide();
       }, 100);
     }
@@ -243,6 +307,81 @@
       $('#row_'+v+' li').click(function(){
         console.log('click');
       });
+    }
+    /**
+     *
+     */
+    function compare(v1, v2, action) {
+      var arr = [v1];
+      if (M.compare.getType(v2)) arr.push(v2);
+
+      $.each(arr, function(i, v){
+        var id = '#row_'+v;
+
+        switch (M.compare.getType(v)) {
+          case 'textarea':
+            break;
+          case 'checkbox':
+            break;
+          case 'select':
+            break;
+          case 'string':
+            break;
+          case 'date':
+            break;
+          case 'radio':
+            break;
+        }
+      });
+    }
+
+    function getType(v) {
+      var type = false, id = '#row_'+v;
+
+      if (!$(id).length) {
+        type = false;
+      } else if ($(id+' textarea').length) {
+        type = 'textarea';
+      } else if ($(id+' input[type="checkbox"]').length) {
+        type = 'checkbox';
+      } else if ($(id+' .selected').length) {
+        type = 'select';
+      } else {
+        switch ($(id+' input').length) {
+          case 1: type = 'string'; break;
+          case 2: type = 'date'; break;
+          case 3: type = 'radio'; break;
+        }
+      }
+
+      return type;
+    }
+
+    function getVal(v) {
+      var value = false, id = '#row_'+v;
+
+      switch (this.getType(v)) {
+        case 'textarea':
+          value = $(id+' textarea').val().trim();
+          break;
+        case 'checkbox':
+          value = $(id+' input[type="checkbox"]').prev().val() === 'true' ? true : false;
+          break;
+        case 'select':
+          value = $(id+' .selected').text().trim();
+          break;
+        case 'string':
+          value = $(id+' input').val().trim();
+          break;
+        case 'date':
+          value = $($(id+' input')[1]).val();
+          break;
+        case 'radio':
+          value = $($(id+' [value="'+$($(id+' input')[0]).val()+'"]')[1]).next().text().trim();
+          break;
+      }
+
+      return value;
     }
     /*
     /
@@ -382,13 +521,27 @@
     /
     /
     */
-    function notice(v, e) {
+    function notice(v) {
+      $('body').append($('<div id="modernDialog" class="modal modal--alert in" tabindex="-1" role="alertdialog"'
+        +'aria-hidden="true" style="display: block; padding-right: 17px; z-index: 1050; background: rgba(0, 0, 0, .5);">'
+        +'<div class="modal-dialog">'
+        +'<button type="button" class="modal-close" data-behavior="closeWidgetModal" '
+        +'onclick="$(\'#modernDialog\').remove();"></button>'
+        +'<div class="modal-content">'
+        +'<header class="modal-header"><h1 class="modal-title">Уведомление</h1></header>'
+        +'<div class="modal-body">'+v+'</div></div><div class="modal-footer">'
+        +'<button type="button" class="btn btn--accept btn--cancel btn-primary" '
+        +'onclick="$(\'#modernDialog\').remove();">Ок</button>'
+        +'</div></div></div>'));
+    }
+
+    function addNote(v, e) {
       e = e ? e : '[data-grpid="qPetit"]';
       M.style.addStyle('.alert > a { display: block; margin: 2vh 0 0 0; }\r\n');
       $(e).prepend('<div class="alert alert-warning"><strong class="alert-title">Примечание</strong>'+v+'</div>');
     }
 
-    function deleteNotice(v) {
+    function deleteNote(v) {
       if (!$(v).length) {
         var time = 0;
         var timer = setInterval(function(){
@@ -401,6 +554,8 @@
         }, 100);
       }
     }
+    terminal.command = command;
+    terminal.stack = [];
     /**
      * ---===STYLE===---
      * @param <JQuery> element
@@ -413,9 +568,9 @@
      */
     $('head').append($('<style id="ogbuStyle">'));
     style.element = $('#ogbuStyle');
-    style.addStyle = addStyle;
     style.timerChoice = null;
 
+    style.addStyle = addStyle;
     style.modalBackground = modalBackground;
     style.modalWidth = modalWidth;
     style.modalDialogWidth = modalDialogWidth;
@@ -436,8 +591,13 @@
     addr.actionDelete = actionDelete;
     addr.addButton = addButton;
 
+    compare.getVal = getVal;
+    compare.getType = getType;
     /* ---===DATE AND TIME===--- */
     dateAndTime.timeFromDictionary = timeFromDictionary;
+
+    notice.addNote = addNote;
+    notice.deleteNote = deleteNote;
     /**
      * ---===Modern.JS===---
      * @param <String> версия модуля
@@ -455,6 +615,7 @@
     modern.ready = ready;
     modern.isLoad = isLoad;
     modern.deleteModern = deleteModern;
+    modern.isArray = isArray;
     /**
      * @param <Function> style
      * @param style is function for style with method's
@@ -462,11 +623,12 @@
      * @param <Function> addr
      * @param addr is function for address button and required with method's
      */
+    modern.terminal = terminal;
     modern.style = style;
     modern.addr = addr;
+    modern.compare = compare;
     modern.dateAndTime = dateAndTime;
     modern.notice = notice;
-    modern.deleteNotice = deleteNotice;
     modern.timerReady = [];
     modern.timerIndex = 0;
     window.M = modern;

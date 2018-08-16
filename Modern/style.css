@@ -1,0 +1,41 @@
+.terminal {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 300px;
+  background: #300A24;
+  border-radius: 10px 10px 0 0;
+  opacity: 0.5;
+  position: fixed;
+  left: 0;
+  top: calc(50% - 200px);
+  z-index: 999;
+}
+.terminal:hover {
+  opacity: 1;
+}
+.terminal header {
+  width: 100%;
+  height: 40px;
+  background: #44433F;
+  border-radius: 10px 10px 0 0;
+}
+.terminal section {
+  padding: 10px;
+  width: 100%;
+  height: 400px;
+  overflow-y: scroll;
+}
+.terminal p {
+  word-break: break-all;
+  color: white;
+}
+.terminal input {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  outline: none;
+  background: none;
+  color: white;
+  caret-color: white;
+}
