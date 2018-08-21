@@ -30,8 +30,6 @@
       if (b) {
         v = M.terminal.command(v);
       }
-      console.log(v);
-      console.dir(M.terminal.stack);
       if (v) M.terminal.stack.push(v);
       let input = $('.terminal input');
       if (input.length) {
@@ -81,8 +79,10 @@
     function isLoad(resolve) {
       var bool = false,
       timer = setInterval(function(){
+        console.log('[TEST] timer isLoad start');
         if ($('.loader').length || bool) bool = true;
         if (bool && !$('.loader').length) {
+          console.log('[TEST] timer isLoad closed');
           clearInterval(timer);
           if (resolve) resolve(1);
         }
@@ -101,6 +101,7 @@
           $('#ogbuStyle').remove();
           $('.terminal').remove();
           clearInterval(M.style.timerChoice);
+          clearInterval(M.addr.timerButton);
           delete window.M;
         }
       }, 100);
@@ -283,7 +284,7 @@
               clearInterval(timer);
               if (resolve) resolve(1);
             }
-          }, 100);
+          }, 100);r
         }).then(function(){
           $('.subgroup-num').each(function(){
             if (+$(this).text() == n) {
@@ -390,6 +391,7 @@
     /
     /
     */
+    /*
     function addr(v, b, args) {
       if (typeof this.addr[v] == 'function') {
         this.addr[v](b, args);
@@ -426,7 +428,7 @@
           if ((t == a.arg[0] || t == a.arg[1]) && !+$(this).attr('butDel')) {
             $($(this).closest('.attr-field')).append($(a.element));
             $(this).attr('butDel', '1');
-            /*
+
             if (b) {
               function o(v) {
                 v = $(v).val().replace(/\s/g, '');
@@ -457,10 +459,57 @@
                 });
               });
             }
-            */
+
           }
         });
       }, 100);
+    }
+    */
+    function addr() {
+
+    }
+
+    function searchAddress(b, b2){
+      clearInterval(this.timerButton);
+      this.timerButton = setInterval(function(){
+        $('textarea').each(function(){
+          let a = window.M.addr,
+              t = $(this).attr('onclick').split("'")[1];
+          if ((t == a.arg[0] || t == a.arg[1])) {
+            if (b && !+$(this).attr('butDel')) {
+              console.log('[TEST] delete button appended');
+              M.addr.addButtonDelete(this);
+            }
+            if (b2 && !+$(this).attr('butClick')) {
+              console.log('[TEST] action open address appended');
+              actionOpenAddress(this);
+            }
+          }
+        });
+      }, 100);
+    }
+
+    function addButtonDelete(v) {
+      $($(v).closest('.attr-field')).append($(this.element));
+      $(v).attr('butDel', '1');
+    }
+
+    function actionDelete(v) {
+      if (!v) return;
+      var d = $(v).closest('.attr-field');
+      $(d).removeClass('attr-field--filled');
+      $('input', $(d)).removeClass().val('');
+      $('textarea', $(d)).removeClass('attr-value-el--filled').val('').text('');
+    }
+
+    function actionOpenAddress(v) {
+
+      $(v).attr('openAddr', '1');
+    }
+
+    function addressNotFound(v) {
+      console.log('[TEST] Address is load!');
+      v = M.isArray(v);
     }
     /*
     /
@@ -589,7 +638,10 @@
     addr.formatLink = null;
 
     addr.actionDelete = actionDelete;
-    addr.addButton = addButton;
+    addr.addButtonDelete = addButtonDelete;
+    addr.searchAddress = searchAddress;
+    addr.addressNotFound = addressNotFound;
+    addr.actionOpenAddress = actionOpenAddress;
 
     compare.getVal = getVal;
     compare.getType = getType;
