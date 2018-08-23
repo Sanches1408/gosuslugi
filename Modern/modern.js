@@ -1,10 +1,9 @@
 ;(function(){
   if (!this.M) {
     /**
-     * modern() внедряет на страницу модульного окна, эмиттирующего терминал
-     * для ввода команд, вывода ошибок и статусов
-     *
-     * @param <Boolean> v
+     * @param {Function} modern внедряет на страницу модульное окно,
+     * эмиттирующего терминал для ввода команд, вывода ошибок и статусов
+     * @param {Boolean} v идентификатор внедрения
      */
     function modern(v) {
       if (v) {
@@ -71,18 +70,14 @@
     }
 
     /**
-     * isLoad() проверяет загруженность всех данных,
-     * применяется в Promise()
-     *
-     * @param <Function> resolve
+     * @param {Function} isLoad проверяет загруженность всех данных, применяется в Promise()
+     * @param {Function} resolve
      */
     function isLoad(resolve) {
       var bool = false,
       timer = setInterval(function(){
-        console.log('[TEST] timer isLoad start');
         if ($('.loader').length || bool) bool = true;
         if (bool && !$('.loader').length) {
-          console.log('[TEST] timer isLoad closed');
           clearInterval(timer);
           if (resolve) resolve(1);
         }
@@ -90,7 +85,7 @@
     }
 
     /**
-     * deleteModern() удаляет блоки скрипта и стиля, которые были добавлены модулем
+     * @param {Function} deleteModern удаляет блоки скрипта и стиля, которые были добавлены модулем
      */
     function deleteModern() {
       var timer = setInterval(function(){
@@ -102,16 +97,17 @@
           $('.terminal').remove();
           clearInterval(M.style.timerChoice);
           clearInterval(M.addr.timerButton);
+          $.each(M.timerReady, function(i){
+            clearInterval(M.timerReady[i]);
+          });
           delete window.M;
         }
       }, 100);
     }
 
     /**
-     * isArray() проверяет допустимое значение и создает из него архив
-     *
-     * @param <String> or <Array> v
-     * @param v проверяемый аргумент
+     * @param {Function} isArray проверяет допустимое значение и создает из него архив
+     * @param {String or Array} v проверяемый аргумент
      */
     function isArray(v) {
       if (typeof v === 'string') v = [v];
@@ -119,14 +115,10 @@
       return v;
     }
     /**
-     * style() применяет стилизацию для элементов страницы
-     *
-     * @param <String> v
-     * @param v: название функции или строковый параметр,
+     * @param {Function} style применяет стилизацию для элементов страницы
+     * @param {String} v название функции или строковый параметр,
      * в случае отсутствия аргумента вызываются все методы style()
-     *
-     * @param <String> or <Boolean> p
-     * @param p: параметр передаваемый в метод
+     * @param {String or Boolean} p параметр передаваемый в метод
      */
     function style(v, p) {
       if (typeof this.style[v] == 'function') {
@@ -158,10 +150,8 @@
     }
 
     /**
-     * addStyle() добавляет стиль в контейнер #ogbuStyle
-     *
-     * @param <String> v
-     * @param v строка css стилизации
+     * @param {Function} addStyle добавляет стиль в контейнер #ogbuStyle
+     * @param {String} v строка css стилизации
      */
     function addStyle(v) {
       var t = this.element;
@@ -170,10 +160,8 @@
     }
 
     /**
-     * modalBackground() устанавливает корректный фон для модульных окон
-     *
-     * @param <String> v
-     * @param v: значение background (black, #032433, rgba(0, 0, 0, .75))
+     * @param {Function} modalBackground устанавливает корректный фон для модульных окон
+     * @param {string} v значение background (black, #032433, rgba(0, 0, 0, .75))
      */
     function modalBackground(v) {
       this.addStyle(
@@ -184,10 +172,8 @@
     }
 
     /**
-     * modalWidth() устанавливает ширину заявления
-     *
-     * @param <String> v
-     * @param v: значение ширины заявления (50%, 1000px, calc(100% - 250px))
+     * @param {Function} modalWidth устанавливает ширину заявления
+     * @param {String} v значение ширины заявления (50%, 1000px, calc(100% - 250px))
      */
     function modalWidth(v) {
       this.addStyle(
@@ -198,10 +184,8 @@
     }
 
     /**
-     * modalDialogWidth() устанавливает ширину модульных окон
-     *
-     * @param <String> v
-     * @param v: значение ширины модульного окна (50%, 1000px, calc(100% - 250px))
+     * @param {Fucntion} modalDialogWidth устанавливает ширину модульных окон
+     * @param {String} v значение ширины модульного окна (50%, 1000px, calc(100% - 250px))
      */
     function modalDialogWidth(v) {
       this.addStyle(
@@ -211,10 +195,8 @@
     }
 
     /**
-     * radio() устанавливает корректное вертикальное отображение радиокнопок
-     *
-     * @param <Boolean> v
-     * @param v: идентификатор полужирного начертания заголовка радиокнопок
+     * @param {Function} radio устанавливает корректное вертикальное отображение радиокнопок
+     * @param {Boolean} v идентификатор полужирного начертания заголовка радиокнопок
      */
     function radio(v) {
       this.addStyle(
@@ -227,10 +209,8 @@
     }
 
     /**
-     * hideSearch() скрывает блок поиска у выпадающего списка
-     *
-     * @param <String> or <Array> v
-     * @param v: код родительского атрибута
+     * @param {Function} hideSearch скрывает блок поиска у выпадающего списка
+     * @param {String or Array} v код родительского атрибута
      */
     function hideSearch(v){
       if (v = M.isArray(v)) {
@@ -243,37 +223,21 @@
       M.terminal('[hideSearch] args: '+(v ? JSON.stringify(v) : 'нет аргументов.'));
     }
 
+    /**
+     * @param {Function} hideChoice скрывается первый атрбиут в списке со словом "Выберите"
+     */
     function hideChoice() {
-      /*
-      var f = function f(v){
-        let e = $('#count'+v+'HideChoice');
-
-        M.terminal('Элемент $("#count'+v+'HideChoice") '+(e.length ? '' : 'не')+' найден.');
-
-        if (e.length) {
-          if (v == 'Element') {
-            return +e.text($('.text:contains("Выберите")').length);
-          } else {
-            return +e.text(+e.text()+1);
-          }
-        } else return 0;
-      }
-      */
       clearInterval(this.timerChoice);
       this.timerChoice = setInterval(function(){
-/*
-        let c = [f('Time'), f('Element')];
-        M.terminal('\tЗначение: '+![f('Time'), f('Element')][0].toString());
-        if (![f('Time'), f('Element')][0]) {
-          M.terminal('[hideChoice] message: найдено элементов <span id="countElementHideChoice">'
-            +$('.text:contains("Выберите")').length+'</span>'
-            +', количество проходов <span id="countTimeHideChoice">0</span>.');
-        }
-*/
         $($('.text:contains("Выберите")').closest('li')).hide();
       }, 100);
     }
 
+    /**
+     * @param {Function} fixBySection добавляет название раздела там, где его нет
+     * @param {Number} n номер раздела, после которого добавляем новый
+     * @param {String} t название нового раздела
+     */
     function fixBySection(n, t) {
       new Promise(function(resolve){
         M.ready('.subgroup-num', resolve);
@@ -284,7 +248,7 @@
               clearInterval(timer);
               if (resolve) resolve(1);
             }
-          }, 100);r
+          }, 100);
         }).then(function(){
           $('.subgroup-num').each(function(){
             if (+$(this).text() == n) {
@@ -299,16 +263,26 @@
       });
     }
 
+    /**
+     * @param {Function} require ставит обязательность у атрибута
+     * @param {String} elem код атрибута, какой он имеется на SK
+     * @param {Boolean} bool true - обязательный, false - нет
+     */
     function require(elem, bool) {
       $('#id_'+elem).attr('ismandatory', bool.toString());
       $('#caption_'+elem)[(bool ? 'add' : 'remove')+'Class']('required');
     }
 
+    /**
+     * TODO FIXME
+     * @param {Function} addHeightLineList увеличивает высоту строки, если значение не влезает
+     */
     function addHeightLineList(v) {
       $('#row_'+v+' li').click(function(){
         console.log('click');
       });
     }
+
     /**
      *
      */
@@ -384,91 +358,37 @@
 
       return value;
     }
-    /*
-    /
-    /
-    /   ***ADDRESS***
-    /
-    /
-    */
-    /*
-    function addr(v, b, args) {
+
+    /**
+     * @param {Function} addr дополнительный функционал для справочника адреса
+     * @param {String} v название метода или параметр уровня фукнционала
+     * @param {Boolean or Array} p либо false, если обязательность не нужна,
+     * либо массив с кодами атрибутов какие они есть на SK
+     */
+    function addr(v, p) {
       if (typeof this.addr[v] == 'function') {
-        this.addr[v](b, args);
+        this.style[v](p);
       } else {
         switch (v) {
           case 'default':
-            with (this.addr) {
-              addButton(b, args);
-            };
+            this.addr.searchAddress(true, p);
             break;
-          default:
-            for (method in this.addr) {
-              if (method != 'actionDelete')
-                this.addr[method]();
-            }
+          case 'mini':
+            this.addr.searchAddress(true);
+            break;
         }
       }
     }
 
-    function actionDelete(v) {
-      if (!v) return;
-      var d = $(v).closest('.attr-field');
-      $(d).removeClass('attr-field--filled');
-      $('input', $(d)).removeClass().val('');
-      $('textarea', $(d)).removeClass('attr-value-el--filled').val('').attr('shortAddr','');
-    }
-
-    function addButton(b, args) {
-      clearInterval(this.timerButton);
-      this.timerButton = setInterval(function(){
-        $('textarea').each(function(){
-          var a = window.M.addr;
-          var t = $(this).attr('onclick').split("'")[1];
-          if ((t == a.arg[0] || t == a.arg[1]) && !+$(this).attr('butDel')) {
-            $($(this).closest('.attr-field')).append($(a.element));
-            $(this).attr('butDel', '1');
-
-            if (b) {
-              function o(v) {
-                v = $(v).val().replace(/\s/g, '');
-                if (v == '') v = null;
-                return v;
-              }
-              $(this).change(function(){
-                if ($(this).attr('shortAddr') != '')
-                  $(this).val($(this).attr('shortAddr'));
-              });
-              $(this).click(function(){
-                a.formatLink = $(this);
-                new Promise(function(resolve){
-                  M.ready('[id*="webWmAddress"] .subgroups-list tbody > tr', resolve);
-                }).then(function(){
-                  function n(b) {
-                    $.each(args, function(i, v){
-                      window.M.style.require(v, (b ? false : true));
-                    });
-                  }
-                  n(o('#id_addrText'));
-                  $('#id_addrText').change(function(){
-                    a.formatLink.attr('shortAddr', o(this) ? o(this) : '');
-                    $.each(args, function(i, v){
-                      n(o('#id_addrText'));
-                    });
-                  });
-                });
-              });
-            }
-
-          }
-        });
-      }, 100);
-    }
-    */
-    function addr() {
-
-    }
-
+    /**
+     * @param {Function} searchAddress каждые 100 мс ищет атрибут адреса
+     * и запускает методы в зависимости от значения аргументов
+     * @param {Boolean} b true - функционал кнопки удаления адреса, false - нат
+     * @param {Boolean or Array} b2 true - выводит лишь строку в адрес,
+     * указанную в поле "Адрес при отсутствии", если передан массив кодов атрибутов,
+     * то устанавливает обязательность перечисленных в зависимости, если поле
+     * "Адрес при отсутствии" не заполнено и убирает, если заполнено
+     */
     function searchAddress(b, b2){
       clearInterval(this.timerButton);
       this.timerButton = setInterval(function(){
@@ -477,23 +397,29 @@
               t = $(this).attr('onclick').split("'")[1];
           if ((t == a.arg[0] || t == a.arg[1])) {
             if (b && !+$(this).attr('butDel')) {
-              console.log('[TEST] delete button appended');
               M.addr.addButtonDelete(this);
             }
-            if (b2 && !+$(this).attr('butClick')) {
-              console.log('[TEST] action open address appended');
-              actionOpenAddress(this);
+            if (b2 && !+$(this).attr('openAddr')) {
+              M.addr.actionOpenAddress(this, b2);
             }
           }
         });
       }, 100);
     }
 
+    /**
+     * @param {Function} addButtonDelete устанавливает кнопку удаления адреса
+     * @param {String or Element} v query селектор или элемент
+     */
     function addButtonDelete(v) {
       $($(v).closest('.attr-field')).append($(this.element));
       $(v).attr('butDel', '1');
     }
 
+    /**
+     * @param {Function} actionDelete функционал удаления адреса
+     * @param {String or Element} v query селектор или элемент
+     */
     function actionDelete(v) {
       if (!v) return;
       var d = $(v).closest('.attr-field');
@@ -502,22 +428,52 @@
       $('textarea', $(d)).removeClass('attr-value-el--filled').val('').text('');
     }
 
-    function actionOpenAddress(v) {
-
-      $(v).attr('openAddr', '1');
+    /**
+     * @param {Function} actionOpenAddress вешает обработчик на адрес
+     * @param {String or Element} v query селектор или элемет
+     * @param {Boolean or Array} a идентификатор события или массив с кодами
+     */
+    function actionOpenAddress(v, a) {
+      $(v).attr('openAddr', '1').click(function(){
+        new Promise(function(resolve){
+          M.addr.formatLink[0] = v;
+          isLoad(resolve);
+        }).then(function(){
+          addressNotFound(a);
+        });
+      }).change(function(){
+        if (t = M.addr.formatLink[1]) {
+          $(this).val(t);
+        }
+      });
     }
 
+    /**
+     * @param {Function} addressNotFound вешает событие обработки атрибута "Адрес при отсутствии"
+     * @param {Boolean or Array} v идентификатор или массив кодов
+     */
     function addressNotFound(v) {
-      console.log('[TEST] Address is load!');
       v = M.isArray(v);
+      $.each(v, function(i){
+        M.style.require(v[i], true);
+      });
+      $('#id_addrText').change(function(){
+        let bool = false;
+        if ($(this).val().trim() === '') {
+          bool = true;
+        } else {
+          M.addr.formatLink[1] = $('#id_addrText').val().trim();
+        }
+        $.each(v, function(i){
+          M.style.require(v[i], bool);
+        });
+      });
+      $('#id_addrText').trigger('change');
     }
-    /*
-    /
-    /
-    /   ***DATE AND TIME***
-    /
-    /
-    */
+
+    /**
+     *
+     */
     function dateAndTime(v, id1, id2) {
       if (typeof this.dateAndTime[v] == 'function') {
         this.dateAndTime[v](id1, id2);
@@ -603,22 +559,23 @@
         }, 100);
       }
     }
+
+    /**
+     * ---===TERMINAL===---
+     * @param {Function} command обработчик команд терминала
+     * @param {Array} stack стэк сообщений терминала
+     */
     terminal.command = command;
     terminal.stack = [];
+
     /**
      * ---===STYLE===---
-     * @param <JQuery> element
-     * @param element is container for style
-     *
-     * @param <Function> addStyle
-     * @param addStyle is function for adding style in container
-     *
-     *
+     * @param {Element} element JQuery элемент-контейнер для стилизации
+     * @param {JS timer} timerChoice таймер для поиска лишнего элемента списка
      */
     $('head').append($('<style id="ogbuStyle">'));
     style.element = $('#ogbuStyle');
     style.timerChoice = null;
-
     style.addStyle = addStyle;
     style.modalBackground = modalBackground;
     style.modalWidth = modalWidth;
@@ -629,52 +586,53 @@
     style.fixBySection = fixBySection;
     style.require = require;
 
-    // ---===ADDRESS===---
+    /**
+     * ---===ADDRESS===---
+     * @param {Element} element кнопка удаления
+     * @param {Array} arg массив идентификаторов справочника КЛАДР
+     * @param {JS timer} timerButton таймер для поиска атрибутов с адресом
+     * @param {Array} formatLink [0] - JQuery элемент адреса, [1] - значение атрибута "Адрес при отсутствии"
+     */
     addr.element = '<div class="table-actions" style="text-align: right; padding: 2vh 0 0;">'
       +'<a class="btn btn-default" title="Удалить адрес" onclick="window.M.addr.actionDelete(this);">'
-      +'Очистить адрес</a></div>',
+      +'Очистить адрес</a></div>';
     addr.arg = ['10344729@SXClass', '11309207@SXClass'];
     addr.timerButton = null;
-    addr.formatLink = null;
-
+    addr.formatLink = [];
     addr.actionDelete = actionDelete;
     addr.addButtonDelete = addButtonDelete;
     addr.searchAddress = searchAddress;
     addr.addressNotFound = addressNotFound;
     addr.actionOpenAddress = actionOpenAddress;
 
+    /**
+     * ---===COMPARE===---
+     */
     compare.getVal = getVal;
     compare.getType = getType;
-    /* ---===DATE AND TIME===--- */
+
+    /**
+     * ---===DATEANDTIME===---
+     */
     dateAndTime.timeFromDictionary = timeFromDictionary;
 
+    /**
+     * ---===NOTICE===---
+     */
     notice.addNote = addNote;
     notice.deleteNote = deleteNote;
+    
     /**
      * ---===Modern.JS===---
-     * @param <String> версия модуля
-     *
-     * @param <Function> ready
-     * @param ready: близится удаление метода
-     *
-     * @param <Function> isLoad
-     * @param isLoad: проверка загрузки всех данных
-     *
-     * @param <Function> deleteModern
-     * @param deleteModern удаляет все, что добавили через модуль
+     * @param {String} version версия модуля
+     * @param {JS timer} timerReady таймер готовности элемент
+     * @param {Number} timerIndex индекс таймера готовности элемента
      */
     modern.version = '1.0.7';
     modern.ready = ready;
     modern.isLoad = isLoad;
     modern.deleteModern = deleteModern;
     modern.isArray = isArray;
-    /**
-     * @param <Function> style
-     * @param style is function for style with method's
-     *
-     * @param <Function> addr
-     * @param addr is function for address button and required with method's
-     */
     modern.terminal = terminal;
     modern.style = style;
     modern.addr = addr;
