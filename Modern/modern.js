@@ -389,18 +389,24 @@
      * то устанавливает обязательность перечисленных в зависимости, если поле
      * "Адрес при отсутствии" не заполнено и убирает, если заполнено
      */
-    function searchAddress(b, b2){
+    function searchAddress(b, b2, b3){
       clearInterval(this.timerButton);
       this.timerButton = setInterval(function(){
         $('textarea').each(function(){
-          let a = window.M.addr,
-              t = $(this).attr('onclick').split("'")[1];
-          if ((t == a.arg[0] || t == a.arg[1])) {
-            if (b && !+$(this).attr('butDel')) {
-              M.addr.addButtonDelete(this);
-            }
-            if (b2 && !+$(this).attr('openAddr')) {
-              M.addr.actionOpenAddress(this, b2);
+          if ($(this).attr('onclick') != '') {
+            let a = window.M.addr,
+                t = $(this).attr('onclick').split("'")[1];
+            if ((t == a.arg[0] || t == a.arg[1])) {
+              if (b && !+$(this).attr('butDel')) {
+                M.addr.addButtonDelete(this);
+              }
+              if (b2 && !+$(this).attr('openAddr')) {
+                M.addr.actionOpenAddress(this, b2);
+              }
+              if (b3 && !+$(this).attr('helperAddr')) {
+                M.addr.actionSetHelper(b3);
+                $(this).attr('helperAddr', '1');
+              }
             }
           }
         });
@@ -463,12 +469,23 @@
           bool = true;
         } else {
           M.addr.formatLink[1] = $('#id_addrText').val().trim();
+          M.style.require($('#id_addrText'), true);
         }
         $.each(v, function(i){
           M.style.require(v[i], bool);
         });
       });
       $('#id_addrText').trigger('change');
+    }
+
+    // TODO FIXME
+    function actionSetHelper(v) {
+      v = M.isArray(v);
+      console.dir(v);
+      $.each(v, function(i){
+        $('[data-attrname="'+v[i][0]+'"]').append($('<div>')
+          .addClass('attr-value-helper').text(v[i][1]));
+      });
     }
 
     /**
@@ -604,6 +621,7 @@
     addr.searchAddress = searchAddress;
     addr.addressNotFound = addressNotFound;
     addr.actionOpenAddress = actionOpenAddress;
+    addr.actionSetHelper = actionSetHelper;
 
     /**
      * ---===COMPARE===---
@@ -621,14 +639,14 @@
      */
     notice.addNote = addNote;
     notice.deleteNote = deleteNote;
-    
+
     /**
      * ---===Modern.JS===---
      * @param {String} version версия модуля
      * @param {JS timer} timerReady таймер готовности элемент
      * @param {Number} timerIndex индекс таймера готовности элемента
      */
-    modern.version = '1.0.7';
+    modern.version = '1.0.8';
     modern.ready = ready;
     modern.isLoad = isLoad;
     modern.deleteModern = deleteModern;
