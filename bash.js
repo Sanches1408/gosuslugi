@@ -33,4 +33,4 @@ bsh{% int result = 60; %}
 </script>
 
 
-<script id="helloScript">a='https://gosuslugi74.ru/pgu/services/info.htm?id=7546@egService&target=12851@egServiceTarget';out='<p><a href="'+a+'" target="_blank">Перейти на страницу с более подробной информацией</a></p>';out='<div><p>Для отправки заявления в Министерство здравоохранения Челябинской области необходимо оплатить государственную пошлину</p>'+out+'</div>';$($('#helloScript').parent()).append($(out));</script>
+<script id="helloScript">$($('#helloScript').parent()).append($('<div><p>Для отправки заявления в Министерство здравоохранения Челябинской области необходимо оплатить государственную пошлину</p><p><a href="https://gosuslugi74.ru/pgu/services/info.htm?id=7546&target=12851@egServiceTarget" target="_blank">Перейти на страницу с более подробной информацией</a></p></div>'));</script>

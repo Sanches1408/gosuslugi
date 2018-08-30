@@ -100,6 +100,9 @@
           $.each(M.timerReady, function(i){
             clearInterval(M.timerReady[i]);
           });
+          $.each(M.dictionary.timer, function(i){
+            clearInterval(M.dictionary.timer[i]);
+          });
           delete window.M;
         }
       }, 100);
@@ -396,16 +399,12 @@
           if ($(this).attr('onclick') != '') {
             let a = window.M.addr,
                 t = $(this).attr('onclick').split("'")[1];
-            if ((t == a.arg[0] || t == a.arg[1])) {
+            if (t == a.arg[0] || t == a.arg[1]) {
               if (b && !+$(this).attr('butDel')) {
                 M.addr.addButtonDelete(this);
               }
-              if (b2 && !+$(this).attr('openAddr')) {
-                M.addr.actionOpenAddress(this, b2);
-              }
-              if (b3 && !+$(this).attr('helperAddr')) {
-                M.addr.actionSetHelper(b3);
-                $(this).attr('helperAddr', '1');
+              if ((b2 && !+$(this).attr('openAddr')) || (b3 && !+$(this).attr('helperAddr'))) {
+                M.addr.actionOpenAddress(this, b2, b3);
               }
             }
           }
@@ -439,17 +438,19 @@
      * @param {String or Element} v query селектор или элемет
      * @param {Boolean or Array} a идентификатор события или массив с кодами
      */
-    function actionOpenAddress(v, a) {
-      $(v).attr('openAddr', '1').click(function(){
+    function actionOpenAddress(v, a, a2) {
+      $(v).attr({'openAddr': '1', 'helperAddr': '1'}).click(function(){
         new Promise(function(resolve){
           M.addr.formatLink[0] = v;
           isLoad(resolve);
         }).then(function(){
           addressNotFound(a);
+          actionSetHelper(a2);
         });
       }).change(function(){
         if (t = M.addr.formatLink[1]) {
           $(this).val(t);
+          M.addr.formatLink = [];
         }
       });
     }
@@ -469,11 +470,11 @@
           bool = true;
         } else {
           M.addr.formatLink[1] = $('#id_addrText').val().trim();
-          M.style.require($('#id_addrText'), true);
         }
         $.each(v, function(i){
           M.style.require(v[i], bool);
         });
+        M.style.require('addrText', !bool);
       });
       $('#id_addrText').trigger('change');
     }
@@ -481,7 +482,6 @@
     // TODO FIXME
     function actionSetHelper(v) {
       v = M.isArray(v);
-      console.dir(v);
       $.each(v, function(i){
         $('[data-attrname="'+v[i][0]+'"]').append($('<div>')
           .addClass('attr-value-helper').text(v[i][1]));
@@ -577,6 +577,124 @@
       }
     }
 
+    function dictionary(v, v2) {
+      if (v) {
+        new Promise(function(resolve){
+          if (!$('#'+v).length)
+            $('body').append($('<script>').attr({'src': 'scripts/ogbu/'+v+'.js', 'id': v}));
+          let timer = setInterval(function(){
+            if (M.dictionary) {
+              clearInterval(timer);
+              resolve(1);
+            }
+          }, 100);
+        }).then(function(){
+          M.dictionary.searchAttr(v2);
+        });
+      }
+    }
+
+    function searchAttr(v) {
+      M.dictionary.timer.push(setInterval(function(){
+        let bool = true;
+        $.each(v, function(i){
+          if (!$('#row_'+v[i]).length || +$('#row_'+v[i]).attr('dicAction')) {
+            bool = false;
+          }
+        });
+        if (bool) {
+          M.dictionary.setAction(v);
+          $.each(v, function(i){ $('#row_'+v[i]).attr('dicAction', '1'); });
+        }
+      }, 100));
+    }
+/*
+    function setAction(v) {
+      function f(list, lvl, parent) {
+        function searchAttr(t, l) {
+          function g(q) {
+            let r;
+            $.each($('#row_'+v[l]+' '+q), function(){
+              if ($(this).text().trim() == t) r = this;
+            });
+            return r;
+          }
+          return g('li:not(:first-child)') || g('.checkbox');
+        }
+        let bool = false;
+        for (let key in list) {
+          bool = true;
+          if (key == 'null')
+            bool = false;
+          else if (f(list[key], lvl+1, key)) {
+            let arr = [];
+            for (let key2 in list[key]) {
+              arr.push(searchAttr(key2, lvl+1));
+            }
+            $(key != 'null' ? searchAttr(key, lvl) : searchAttr(parent, lvl-1)).click(function(){
+              $('#row_'+v[lvl+1]+' li:not(:first-child)').hide();
+              $('#row_'+v[lvl+1]+' .checkbox').hide();
+              let elem = $('#row_'+v[lvl+1]+' .checkbox');
+              if (elem.length) {
+                $.each(elem, function(){
+                  if ($('input', this).prop('checked'))
+                    $('input', this).trigger('click');
+                });
+              } else {
+                elem = $('#row_'+v[lvl+1]+' li:not(:first-child)');
+                $('#row_'+v[lvl+1]+' li:first-child a').trigger('click');
+              }
+              elem.hide();
+              $.each($('#row_'+v[lvl+1]), function(){
+                $(this).hide();
+              });
+              $.each(arr, function(i) {
+                $(arr[i]).show();
+              });
+              //$('#row_'+v[lvl+1]).show();
+              $(arr[0]).closest('[dicaction="1"]').show();
+            });
+          }
+        }
+        return bool;
+      }
+
+      f(M.dictionary.list, 0, M.dictionary.list);
+    }
+*/
+    function setAction(v){
+      function recursive(list, lvl, parent) {
+        let bool = false;
+        for (let key in list) {
+          console.log('level: '+lvl+', key: '+key+', parent: '+parent);
+          bool = true;
+          parent.push(key);
+          if (recursive(list[key], lvl+1, parent)) {
+            debugger;
+            $(M.dictionary.getAttrClick(key, parent)).click(function(){
+
+            });
+          }
+        }
+        parent.pop();
+        return bool;
+      };
+      recursive(M.dictionary.list, 0, []);
+    }
+
+    function getAttrClick(k, p) {
+      let parent = M.dictionary.list,
+      pTemp = p;
+      while(p[0]) {
+        parent = parent[p.shift()];
+        
+      }
+    }
+
+    function getChild(v) {
+      let arr = [];
+
+    }
     /**
      * ---===TERMINAL===---
      * @param {Function} command обработчик команд терминала
@@ -641,6 +759,13 @@
     notice.deleteNote = deleteNote;
 
     /**
+     *
+     */
+    dictionary.list = {};
+    dictionary.searchAttr = searchAttr;
+    dictionary.setAction = setAction;
+    dictionary.timer = [];
+    /**
      * ---===Modern.JS===---
      * @param {String} version версия модуля
      * @param {JS timer} timerReady таймер готовности элемент
@@ -657,6 +782,7 @@
     modern.compare = compare;
     modern.dateAndTime = dateAndTime;
     modern.notice = notice;
+    modern.dictionary = dictionary;
     modern.timerReady = [];
     modern.timerIndex = 0;
     window.M = modern;
