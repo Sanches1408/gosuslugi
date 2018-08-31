@@ -123,7 +123,7 @@
      * в случае отсутствия аргумента вызываются все методы style()
      * @param {String or Boolean} p параметр передаваемый в метод
      */
-    function style(v, p) {
+    function style(v, p, v2) {
       if (typeof this.style[v] == 'function') {
         this.style[v](p);
       } else {
@@ -140,7 +140,7 @@
           case 'mini':
             with(this.style) {
               modalBackground();
-              radio(p);
+              radio(p, v2);
             }
             M.terminal('Применена стилизация: "mini".');
             break;
@@ -201,13 +201,20 @@
      * @param {Function} radio устанавливает корректное вертикальное отображение радиокнопок
      * @param {Boolean} v идентификатор полужирного начертания заголовка радиокнопок
      */
-    function radio(v) {
+    function radio(v, v2) {
       this.addStyle(
-        '.attr-field--layout > * { display: block!important; width: 100%!important; }\r\n'
+        '.attr-field--layout > * { display: block!important; width: 90%!important; }\r\n'
         +'.attr-field--layout > *:first-child { margin-bottom: 2vh;'
         +(v ? ' font-weight: bold;' : '')+' }\r\n.attr-field--layout > *:nth-child(2) { margin-left: 5%; }\r\n'
 	      +'.attr-field--layout .attr-label-title-wrapper { white-space: normal; }\r\n'
       );
+      if (v2 = M.isArray(v2)) {
+        $.each(v2, function(i){
+          M.style.addStyle(
+            '#row_'+v2[i]+' .attr-value-helper { top: -5vh!important; }\r\n'
+          );
+        });
+      }
       M.terminal('[radio] args: '+(v ? 'font-weight: bold' : 'нет аргументов.'));
     }
 
@@ -603,8 +610,8 @@
           }
         });
         if (bool) {
-          M.dictionary.setAction(v);
           $.each(v, function(i){ $('#row_'+v[i]).attr('dicAction', '1'); });
+          M.dictionary.setAction(v);
         }
       }, 100));
     }
@@ -662,17 +669,19 @@
       f(M.dictionary.list, 0, M.dictionary.list);
     }
 */
+/*
     function setAction(v){
-      function recursive(list, lvl, parent) {
-        let bool = false;
+      function recursive(l, l2, p) {
+        let bool = false, list = l, lvl = l2, parent = p;
         for (let key in list) {
-          console.log('level: '+lvl+', key: '+key+', parent: '+parent);
           bool = true;
           parent.push(key);
           if (recursive(list[key], lvl+1, parent)) {
-            debugger;
-            $(M.dictionary.getAttrClick(key, parent)).click(function(){
-
+            let hist = M.dictionary.getAttrClick(key, parent, v, lvl);
+            console.log('[TEST] get click for '+$(hist[0]).text()+' in level '+hist[1]);
+            $(hist[0]).click(function(){
+              M.dictionary.hideAttr(v, hist[1]);
+              M.dictionary.getKeys(v[hist[1]+1], list[key]);
             });
           }
         }
@@ -682,18 +691,121 @@
       recursive(M.dictionary.list, 0, []);
     }
 
-    function getAttrClick(k, p) {
-      let parent = M.dictionary.list,
-      pTemp = p;
-      while(p[0]) {
-        parent = parent[p.shift()];
-        
+    function getAttrClick(k, p, e, l) {
+      if (k == 'null') {
+        if (p.length == 1) {
+          k = p.pop();
+          l = 0;
+        }
+        else {
+          let t, temp, ind = l;
+          while(p[0]) {
+            t = p.pop();
+            ind--;
+            if (t != 'null') {
+              k = t; l = ind;
+            }
+          }
+        }
+      }
+      let elem = $('.checkbox', $('#row_'+e[l]));
+      if (!elem.length)
+        elem = $('li:not(:first-child)', $('#row_'+e[l]));
+      $.each(elem, function(){
+        if ($(this).text().trim() == k) {
+          elem = this;
+          return false;
+        }
+      });
+      return [elem, l];
+    }
+
+    function getKeys(v, k) {
+      let e = $('#row_'+v), b = false,
+        elem = $('.checkbox', e);
+      if (!elem.length)
+        elem = $('li:not(:first-child)', e);
+      for (let key in k) {
+        $.each(elem, function(i){
+          if ($(elem[i]).text().trim() == key) {
+            b = true;
+            $(elem[i]).show();
+            return false;
+          }
+        });
+      }
+      if (b) {
+        $(e).show();
       }
     }
 
-    function getChild(v) {
-      let arr = [];
+    function hideAttr(v, l) {
+      $.each(v, function(i){
+        if (i > l) {
+          let row = $('#row_'+v[i]),
+            child = $('.checkbox', row);
+          if (child.length) {
+            $('input:checked', row).trigger('click');
+          } else {
+            child = $('li:not(:first-child)', row);
+            $('li:first-child a', row).trigger('click');
+          }
+          row.hide();
+          child.hide();
+        }
+      });
+    }
+    */
+    function setAction(v) {
+      function recursive(list) {
+        let arr = [], bool = false;
+        let key;
+        for (key in list) {
+          bool = true;
+          console.log('[TEST] Проверяем ключ '+key+' на уровне '+list.lvl);
+          if (key != 'lvl' && recursive(list[key])) {
+            console.log('[TEST] get click '+key+' на уровне '+list.lvl);
+            console.log('[TEST] show next elements '+M.dictionary.getAttr(v, list[key])
+            +' на уровне '+list[key].lvl);
+            M.dictionary.hideAttr(v, list.lvl);
+          }
+        }
+        return bool;
+      }
+      recursive(M.dictionary.list);
+    }
 
+    function getAttr(v, list) {
+      let arr = [], key;
+      for (key in list) {
+        if (key != 'lvl') {
+          arr.push($(M.dictionary.getElems(v[list.lvl], key)[1]).text().trim());
+        }
+      }
+      return arr;
+    }
+    function getLiOrCheck(v) {
+      let e = [$('#row_'+v)];
+      e[1] = $('.checkbox', e[0]);
+      if (!e[1].length)
+        e[1] = $('li a', e[0]);
+      return e;
+    }
+    function getElems(v, text) {
+      let e = M.dictionary.getLiOrCheck(v);
+      $.each(e[1], function(i){
+        if ($(e[1][i]).text().trim() == text) {
+          e[1] = e[1][i];
+          return false;
+        }
+      });
+      return e;
+    }
+
+    function hideAttr(v, l) {
+      $.each(v, function(i){
+        if (M.dictionary.getLiOrCheck(v[i]) )
+      });
     }
     /**
      * ---===TERMINAL===---
@@ -764,6 +876,11 @@
     dictionary.list = {};
     dictionary.searchAttr = searchAttr;
     dictionary.setAction = setAction;
+    dictionary.getAttr = getAttr;
+    dictionary.getElems = getElems;
+    //dictionary.getAttrClick = getAttrClick;
+    //dictionary.hideAttr = hideAttr;
+    //dictionary.getKeys = getKeys;
     dictionary.timer = [];
     /**
      * ---===Modern.JS===---
