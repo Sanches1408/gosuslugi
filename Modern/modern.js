@@ -95,7 +95,8 @@
           $('[src*="modern.js"]').remove();
           $('#ogbuStyle').remove();
           $('.terminal').remove();
-          clearInterval(M.style.timerChoice);
+          clearInterval(M.style.hideChoice.timer);
+          clearInterval(M.style.valueCell.timer);
           clearInterval(M.addr.timerButton);
           $.each(M.timerReady, function(i){
             clearInterval(M.timerReady[i]);
@@ -237,12 +238,12 @@
      * @param {Function} hideChoice скрывается первый атрбиут в списке со словом "Выберите"
      */
     function hideChoice() {
-      clearInterval(this.timerChoice);
-      this.timerChoice = setInterval(function(){
+      clearInterval(M.style.hideChoice.timer);
+      M.style.hideChoice.timer = setInterval(function(){
         $($('.text:contains("Выберите")').closest('li')).hide();
       }, 100);
     }
-
+    hideChoice.timer = null;
     /**
      * @param {Function} fixBySection добавляет название раздела там, где его нет
      * @param {Number} n номер раздела, после которого добавляем новый
@@ -293,6 +294,22 @@
       });
     }
 
+    function valueCell() {
+      clearInterval(M.style.valueCell.timer);
+      M.style.valueCell.timer = setInterval(function(){
+        $.each(
+          $('.gridRow td').not('td:first-child, td:last-child, td:nth-last-child(2)'),
+          function(){
+            if ($(this).text().trim() == '') {
+              $(this).append($(M.style.valueCell.element));
+            }
+          }
+        );
+      }, 100);
+    }
+    valueCell.timer = null;
+    valueCell.element = '<span style="color: silver;">'
+      +'Откройте на редактирование для просмотра содержимого</span>';
     /**
      *
      */
@@ -725,6 +742,7 @@
         M.style.require(v[i], false);
       }
     }
+
     /**
      * ---===TERMINAL===---
      * @param {Function} command обработчик команд терминала
@@ -740,7 +758,6 @@
      */
     $('head').append($('<style id="ogbuStyle">'));
     style.element = $('#ogbuStyle');
-    style.timerChoice = null;
     style.addStyle = addStyle;
     style.modalBackground = modalBackground;
     style.modalWidth = modalWidth;
@@ -750,6 +767,7 @@
     style.hideChoice = hideChoice;
     style.fixBySection = fixBySection;
     style.require = require;
+    style.valueCell = valueCell;
 
     /**
      * ---===ADDRESS===---
@@ -805,7 +823,7 @@
      * @param {JS timer} timerReady таймер готовности элемент
      * @param {Number} timerIndex индекс таймера готовности элемента
      */
-    modern.version = '1.0.9';
+    modern.version = '1.1.0';
     modern.ready = ready;
     modern.isLoad = isLoad;
     modern.deleteModern = deleteModern;
