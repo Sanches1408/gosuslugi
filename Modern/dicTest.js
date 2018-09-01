@@ -1,5 +1,5 @@
 if (window.M) {
-  window.M.dictionary.list = {
+  window.M.dictionary.list.dicTest = {
     'lvl': 0,
     '1': {
       'lvl': 1,
@@ -16,18 +16,7 @@ if (window.M) {
       }
     },
 
-    '2': {
-      'lvl': 1,
-      '4': {
-        'lvl': 2,
-        '2': {},
-        '4': {}
-      },
-      '5': {
-        'lvl': 2,
-        '6': {}
-      }
-    },
+    '2': {},
 
     '3': {
       'lvl': 2,
@@ -41,5 +30,5 @@ if (window.M) {
       '1': {},
       '2': {}
     }
-  }
+  };
 }
