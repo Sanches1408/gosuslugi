@@ -5,6 +5,7 @@ bsh{% java.text.SimpleDateFormat df = sx.common.SXDateFormatStore.getDateFormat(
 bsh{% java.text.SimpleDateFormat df = sx.common.SXDateFormatStore.getDateFormat("yyyyMMdd"); Date t = new Date(); String result = df.format(t.getTime() + (1000*60*60*24*15)); %}
 
 bsh{% int result = 60; %}
+
 <script id="helloScript">
   a = 'https://gosuslugi74.ru/pgu/services/info.htm?category=15707@egOrganization&id=7546@egService&target={NUMBER}@egServiceTarget';
   n = '';
