@@ -87,17 +87,20 @@
     /**
      * @param {Function} deleteModern удаляет блоки скрипта и стиля, которые были добавлены модулем
      */
-    function deleteModern() {
-      var timer = setInterval(function(){
-        if (!$('.petition-form').length) {
-          clearInterval(timer);
+    // FIXME TODO: big problem with link previos for petition!
+    function deleteModern(v) {
+      clearInterval(M.deleteModern.timer);
+      M.deleteModern.timer = setInterval(function(){
+        if (!$('.petition-form').length || v) {
+          clearInterval(M.deleteModern.timer);
           $('[src*="modern.js"]').next().remove();
           $('[src*="modern.js"]').remove();
           $('#ogbuStyle').remove();
           $('.terminal').remove();
+          //clearInterval(M.buttonPrevClick.timer);
           clearInterval(M.style.hideChoice.timer);
           clearInterval(M.style.valueCell.timer);
-          clearInterval(M.addr.timerButton);
+          clearInterval(M.addr.searchAddress.timer);
           $.each(M.timerReady, function(i){
             clearInterval(M.timerReady[i]);
           });
@@ -108,7 +111,25 @@
         }
       }, 100);
     }
-
+    deleteModern.timer = null;
+/*
+    function buttonPrevClick() {
+      clearInterval(M.buttonPrevClick.timer);
+      M.buttonPrevClick.timer = setInterval(function(){
+        console.log('%csearch...', 'background: black; padding: 1%; color: gold;');
+        let e = $('footer .btn:contains("Назад")');
+        if (e.length) {
+          console.log('%csearch!', 'background: black; padding: 1%; color: gold;');
+          clearInterval(M.buttonPrevClick.timer);
+          e.click(function(){
+            M.deleteModern(true);
+            e.click(function(){ return false; });
+          });
+        }
+      }, 100);
+    }
+    buttonPrevClick.timer = null;
+*/
     /**
      * @param {Function} isArray проверяет допустимое значение и создает из него архив
      * @param {String or Array} v проверяемый аргумент
@@ -417,8 +438,8 @@
      * "Адрес при отсутствии" не заполнено и убирает, если заполнено
      */
     function searchAddress(b, b2, b3){
-      clearInterval(this.timerButton);
-      this.timerButton = setInterval(function(){
+      clearInterval(M.addr.searchAddress.timer);
+      M.addr.searchAddress.timer = setInterval(function(){
         $('textarea').each(function(){
           if ($(this).attr('onclick') != '') {
             let a = window.M.addr,
@@ -435,7 +456,7 @@
         });
       }, 100);
     }
-
+    searchAddress.timer = null;
     /**
      * @param {Function} addButtonDelete устанавливает кнопку удаления адреса
      * @param {String or Element} v query селектор или элемент
@@ -601,7 +622,7 @@
       }
     }
 
-    function dictionary(v, v2) {
+    function dictionary(v, v2, b) {
       if (v) {
         new Promise(function(resolve){
           if (!$('#'+v).length)
@@ -613,45 +634,55 @@
             }
           }, 100);
         }).then(function(){
-          M.dictionary.searchAttr(v, v2);
+          M.dictionary.searchAttr(v, v2, b);
         });
       }
     }
 
-    function searchAttr(vDic, vArr) {
+    function searchAttr(vDic, vArr, vBool) {
       let v = vDic, v2 = vArr;
       M.dictionary.timer.push(setInterval(function(){
         let bool = true;
         $.each(v2, function(i){
           if (!$('#row_'+v2[i]).length || +$('#row_'+v2[i]).attr('dicAction')) {
             bool = false;
+          } else if ($('#row_'+v2[i]).length && !+$('#row_'+v2[i]).attr('dicAction') && vBool) {
+            bool = true;
+            if (!vBool[0]) vBool = [];
+            vBool.push(i-1);
           }
         });
         if (bool) {
           $.each(v2, function(i){ $('#row_'+v2[i]).attr('dicAction', '1'); });
           let obj = M.dictionary.list[v];
-          $.each(vArr, function(i){
-            let p = $('#row_'+this), c = $('button', p);
-            if (c.length)
-              c = c.attr('title').trim();
-            else
-              c = $($('input', p)[0]).val();
-            if (c == 'Выберите' || c == '') {
-              if (i) {
-                p.hide();
+          $.each(v2, function(i){
+            if (vBool && vBool[0] == i) {
+              $('#row_'+v2[vBool[0]]+' li:first-child').click(function(){
+                M.dictionary.hideAttr(v2, vBool[0]+1);
+              });
+            } else {
+              let p = $('#row_'+this), c = $('button', p);
+              if (c.length)
+                c = c.attr('title').trim();
+              else
+                c = $($('input', p)[0]).val();
+              if (c == 'Выберите' || c == '') {
+                if (i) {
+                  p.hide();
+                } else {
+                  M.style.require(this, true);
+                }
               } else {
+                obj = obj[c];
+                if (obj) {
+                  $(M.dictionary.getLiOrCheck(vArr[obj.lvl])[1]).hide();
+                  let a = M.dictionary.getAttr(vArr, obj);
+                  for (let i = 1; i < a.length; i++) {
+                    $(a[i]).show();
+                  }
+                }
                 M.style.require(this, true);
               }
-            } else {
-              obj = obj[c];
-              if (obj) {
-                $(M.dictionary.getLiOrCheck(vArr[obj.lvl])[1]).hide();
-                let a = M.dictionary.getAttr(vArr, obj);
-                for (let i = 1; i < a.length; i++) {
-                  $(a[i]).show();
-                }
-              }
-              M.style.require(this, true);
             }
           });
           M.dictionary.setAction(v, v2);
@@ -676,6 +707,7 @@
                   r = $(r[0]);
                 M.style.require(r.attr('data-attrname'), true);
                 $.each(arr, function(){ $(this).show(); });
+                if (arr.length == 2) $('a', arr[1]).trigger('click');
               }
             );
           } else if (key != 'lvl') {
@@ -780,7 +812,6 @@
       +'<a class="btn btn-default" title="Удалить адрес" onclick="window.M.addr.actionDelete(this);">'
       +'Очистить адрес</a></div>';
     addr.arg = ['10344729@SXClass', '11309207@SXClass'];
-    addr.timerButton = null;
     addr.formatLink = [];
     addr.actionDelete = actionDelete;
     addr.addButtonDelete = addButtonDelete;
@@ -823,10 +854,11 @@
      * @param {JS timer} timerReady таймер готовности элемент
      * @param {Number} timerIndex индекс таймера готовности элемента
      */
-    modern.version = '1.1.0';
+    modern.version = '1.1.1';
     modern.ready = ready;
     modern.isLoad = isLoad;
     modern.deleteModern = deleteModern;
+    //modern.buttonPrevClick = buttonPrevClick;
     modern.isArray = isArray;
     modern.terminal = terminal;
     modern.style = style;
@@ -840,5 +872,6 @@
     window.M = modern;
 
     window.M.deleteModern();
+    //window.M.buttonPrevClick();
   }
 }());

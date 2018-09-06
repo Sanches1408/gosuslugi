@@ -5,9 +5,7 @@ if (!this.M) {
   .done(function(){
     $('body').append('<script src="scripts/ogbu/modern.js" async></script>');
     function script() {
-      M.style('mini', true);
-      M.style.hideChoice();
-      M.addr.searchAddress(true, []);
+      
     }
     $('body').append($('<script>').text(';('+script.toString()+'());'));
   });
