@@ -854,7 +854,7 @@
      * @param {JS timer} timerReady таймер готовности элемент
      * @param {Number} timerIndex индекс таймера готовности элемента
      */
-    modern.version = '1.1.1';
+    modern.version = '1.1.2';
     modern.ready = ready;
     modern.isLoad = isLoad;
     modern.deleteModern = deleteModern;
