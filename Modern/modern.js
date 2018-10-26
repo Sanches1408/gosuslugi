@@ -1,50 +1,60 @@
 ;(function(){
 
-  var out = function out(v) {
-    console.log('%c'+v, 'padding: 1%; font-weight: bold; background: black; color: gold;');
-  }
+  let version = '1.0';
 
   function Modern(temp = 'Hello world!') {
-    this.text = temp;
-    this.timerDelete = null;
 
-    this.timers = [
-      'timerDelete'
-    ];
+    this.version = version;
+    this.text = temp;
+
+    this.out = out;
 
     this.start = function(){
       this.out(this.text);
     };
-
-    this.out = out;
-
-    this.delete = function(){
-      this.out('Включена функция удаления');
-      if (window.location.host == 'gosuslugi74.ru' || window.location.host == '10.0.1.207:8081') {
-        clearInterval(this.timerDelete);
-        this.timerDelete = setInterval(function(obj){
-          out('Попытка удаления');
-          if ($('.sidebar-step:visible').length == 1) {
-            $.each(obj.timers, function(){
-              clearInterval(obj[this]);
-            });
-            // Здесь удаляются переменные Modern.JS
-
-            out('Успешно удалено!');
-            //location.reload();
-          }
-        }, 100, this);
-        out(this);
-        $('.btn-action--submit').click({obj: this}, function(event){
-          event.data.obj.out('Отправка заявления');
-          clearInterval(event.data.obj.timerDelete);
-        });
-      } else {
-        out('Удаление здесь не используется');
-      }
-    }
   }
 
+  let out = function out(v) {
+    console.log('%c'+v, 'padding: 1%; font-weight: bold; background: black; color: gold;');
+  }
+
+  let deleteModern = function deleteModern(){
+    let timer = setInterval(function(){
+      console.log('Пытаемся найти заявление')
+      if ($('#row_recipientOrg').length) {
+        console.log('Заявление нашли');
+        let hash = parseInt(Math.floor(Math.random() * 100));
+        $('#row_recipientOrg').attr('hash', hash);
+        M.activePetition = hash;
+        clearInterval(timer);
+        timer = setInterval(function(){
+          console.log('Теперь узнаем закрыто ли заявление');
+          if (!$('.modal-dialog--petition').length) {
+            console.log('Заявление закрыто');
+            for (let t in M.timers) {
+              clearInterval(t);
+            }
+            clearInterval(timer);
+            $('#modern').remove();
+            delete M;
+            console.log('Удалено');
+          }
+        }, 1000);
+      }
+    }, 1000);
+  };
+  /*
+   * Veriables
+   */
+  Modern.version = version;
+  Modern.activePetition = null;
+  Modern.timers = {};
+
+  /*
+   * Functions
+   */
   Modern.out = out;
+
   window.M = window.Modern = Modern;
+  deleteModern();
 }());
