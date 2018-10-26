@@ -1,5 +1,5 @@
 true;
-console.dir(event);
+
 function out(text) {
   console.log('%c'+text, 'padding: 1%; font-weight: bold; background: gold; color: black;');
 }
@@ -10,11 +10,11 @@ function methods(){
   let hash = parseInt(Math.floor(Math.random() * 100));
   $('#row_recipientOrg').attr('hash', hash);
   M.activePetition = hash;
-  
+
   $('head').append($('<script>').attr('id', 'modern').text(';('+(function(){
     console.log('Выполняем методы');
     let m = new M();
-    m.start();
+    
     // Здесь писать методы
 
   }).toString()+'());'));

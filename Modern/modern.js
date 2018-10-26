@@ -2,16 +2,28 @@
 
   let version = '1.0';
 
-  function Modern(temp = 'Hello world!') {
+  function Modern(code) {
 
     this.version = version;
-    this.text = temp;
+    this.element = null;
+
+    switch (typeof code) {
+      case 'string': this.element = $('#row_'+code); break;
+      case 'object': this.element = code;
+    }
 
     this.out = out;
+    this.style = style;
+    this.addStyle = addStyle;
+    this.modalBackground = modalBackground;
+    this.modalWidth = modalWidth;
+    this.modalDialogWidth = modalDialogWidth;
+    this.radio = radio;
+    this.hideSearch = hideSearch;
+    this.hideChoice = hideChoice;
+    this.require = require;
 
-    this.start = function(){
-      this.out(this.text);
-    };
+    return this;
   }
 
   let out = function out(v) {
@@ -36,6 +48,7 @@
             }
             clearInterval(timer);
             $('#modern').remove();
+            $('#ogbuStyle').remove();
             delete M;
             console.log('Удалено');
           }
@@ -43,6 +56,70 @@
       }
     }, 1000);
   };
+
+  function start() {
+    deleteModern();
+    M.out((new M).text);
+
+    $('head').append($('<style id="ogbuStyle">'));
+  }
+
+  function style() {
+
+    return this;
+  }
+
+  function addStyle(css) {
+    let style = this.element;
+    if (style.length) {
+      if (style.text().indexOf(css) == -1) {
+        style.text(style.text() + css);
+      }
+    }
+    return this;
+  }
+
+  function modalBackground(color) {
+    this.addStyle.call(this, '.modal-backdrop { display: none!important; }\r\n'
+      +'.modal { background: '+(color || 'rgba(0, 0, 0, .5)')+'!important; }\r\n');
+    return this;
+  }
+
+  function modalWidth(width) {
+    this.addStyle.call(this, '.modal-dialog--petition > .modal-content { max-width: '
+      +(v ? v : '80%')+'!important; width: '+(width || '80%')+'!important; }\r\n');
+    return this;
+  }
+
+  function modalDialogWidth(width) {
+    this.addStyle.call(this, '.modal .modal-dialog { max-width: '+(width || '80%')+'!important; }\r\n');
+  }
+
+  function radio(font) {
+    this.addStyle.call(this,
+      '.attr-field--layout > * { display: block!important; width: 100%!important; }\r\n'
+      +'.attr-field--layout > *:first-child { margin-bottom: 2vh;'
+      +(font || '')+' }\r\n.attr-field--layout > *:nth-child(2) { margin-left: 5%; }\r\n'
+      +'.attr-field--layout .attr-label-title-wrapper { white-space: normal; }\r\n');
+    return this;
+  }
+
+  function hideSearch(code) {
+    this.addStyle.call(this, (code ? '#row_'+code : '') + ' .bs-searchbox { display: none; }\r\n');
+    return this;
+  }
+
+  function hideChoice(code) {
+    this.addStyle.call(this, (code ? '#row_'+code : '') + ' li:first-child() { display: none; }\r\n');
+    return this;
+  }
+
+  function require(bool) {
+    let elem = this.element.attr('id').split('_')[1];
+    $('#id_'+elem).attr('ismandatory', bool.toString());
+    $('#caption_'+elem)[(bool ? 'add' : 'remove')+'Class']('required');
+    return this;
+  }
   /*
    * Veriables
    */
@@ -51,10 +128,13 @@
   Modern.timers = {};
 
   /*
+   * Style
+   */
+  /*
    * Functions
    */
   Modern.out = out;
 
   window.M = window.Modern = Modern;
-  deleteModern();
+  start();
 }());
