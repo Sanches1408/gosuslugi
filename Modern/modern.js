@@ -1,20 +1,26 @@
 ;(function(){
 
-  let version = '1.0';
+  let version = '1.1';
 
   function Modern(code) {
 
     this.version = version;
-    this.element = null;
+    this.code = code;
 
-    switch (typeof code) {
-      case 'string': this.element = $('#row_'+code); break;
-      case 'object': this.element = code;
+    if (code !== undefined) {
+      this.element = M.getArray(code).map(function(c){
+        return $('#row_'+c);
+      });
+    } else {
+      this.element = null;
     }
 
     this.out = out;
+    this.getArray = getArray;
 
     this.style = style;
+    this.style.parent = this;
+    this.style.element = $('#row_ogbuStyle');
     this.style.addStyle = addStyle;
     this.style.modalBackground = modalBackground;
     this.style.modalWidth = modalWidth;
@@ -22,13 +28,19 @@
     this.style.radio = radio;
     this.style.hideSearch = hideSearch;
     this.style.hideChoice = hideChoice;
-    this.style.require = require;
+    this.style.setRequire = setRequire;
 
     return this;
   }
 
   let out = function out(v) {
     console.log('%c'+v, 'padding: 1%; font-weight: bold; background: black; color: gold;');
+  }
+
+  let getArray = function getArray(value) {
+    if (!(value instanceof Array))
+      value = [value];
+    return value;
   }
 
   let deleteModern = function deleteModern(){
@@ -48,8 +60,8 @@
               clearInterval(t);
             }
             clearInterval(timer);
-            $('#modern').remove();
-            $('#ogbuStyle').remove();
+            $('#row_modern').remove();
+            $('#row_ogbuStyle').remove();
             delete M;
             console.log('Удалено');
           }
@@ -61,19 +73,22 @@
   function start() {
     deleteModern();
 
-    $('head').append($('<style id="ogbuStyle">'));
+    $('head').append($('<style id="row_ogbuStyle">'));
   }
 
-  function style() {
-
+  function style(func, args) {
+    if (typeof func == 'object') {
+      for (let f in func) {
+        this.style[f](func[f]);
+      }
+    } else {
+      this.style[func](args);
+    }
     return this;
   }
 
   function addStyle(css) {
-    M.out('Вызвано из ', this);
     let style = this.element;
-    M.out('Применяем стиль '+css);
-    M.out('К элементу ', style);
     if (style.text().indexOf(css) == -1) {
       style.text(style.text() + css);
     }
@@ -81,52 +96,68 @@
   }
 
   function modalBackground(color) {
-    M.out('Вызвано из ', this);
     this.addStyle.call(this, '.modal-backdrop { display: none!important; }\r\n'
       +'.modal { background: '+(color || 'rgba(0, 0, 0, .5)')+'!important; }\r\n');
-    return this;
   }
 
   function modalWidth(width) {
-    M.out('Вызвано из ', this);
     this.addStyle.call(this, '.modal-dialog--petition > .modal-content { max-width: '
-      +(v ? v : '80%')+'!important; width: '+(width || '80%')+'!important; }\r\n');
-    return this;
+      +(width || '80%')+'!important; width: '+(width || '80%')+'!important; }\r\n');
   }
 
   function modalDialogWidth(width) {
-    M.out('Вызвано из ', this);
     this.addStyle.call(this, '.modal .modal-dialog { max-width: '+(width || '80%')+'!important; }\r\n');
   }
 
   function radio(font) {
-    M.out('Вызвано из ', this);
     this.addStyle.call(this,
       '.attr-field--layout > * { display: block!important; width: 100%!important; }\r\n'
       +'.attr-field--layout > *:first-child { margin-bottom: 2vh;'
       +(font || '')+' }\r\n.attr-field--layout > *:nth-child(2) { margin-left: 5%; }\r\n'
       +'.attr-field--layout .attr-label-title-wrapper { white-space: normal; }\r\n');
-    return this;
   }
 
   function hideSearch(code) {
-    M.out('Вызвано из ', this);
-    this.addStyle.call(this, (code ? '#row_'+code : '') + ' .bs-searchbox { display: none; }\r\n');
-    return this;
+    let style = this;
+    M.out('hideSearch is started!');
+    M.out('code = '+code);
+    M.out('style.parent.code = '+style.parent.code);
+    console.dir(M.getArray(code || style.parent.code));
+    $.each(M.getArray(code || style.parrent.code), function(){
+      M.out('element = '+this);
+      style.addStyle.call(style, (this ? '#row_'+this : '') + ' .bs-searchbox { display: none; }\r\n');
+    });
   }
 
   function hideChoice(code) {
-    M.out('Вызвано из ', this);
-    this.addStyle.call(this, (code ? '#row_'+code : '') + ' li:first-child() { display: none; }\r\n');
-    return this;
+    let style = this;
+    M.out('hideChoice is started!');
+    M.out('code = '+code);
+    M.out('style.parent.code = '+style.parent.code);
+    console.dir(M.getArray(code || style.parent.code));
+    $.each(M.getArray(code || style.parent.code), function(){
+      M.out('element = '+this);
+      style.addStyle.call(style, (this ? '#row_'+this : '') + ' li:first-child { display: none; }\r\n');
+    });
   }
 
-  function require(bool) {
-    M.out('Вызвано из ', this);
-    let elem = this.element.attr('id').split('_')[1];
-    $('#id_'+elem).attr('ismandatory', bool.toString());
-    $('#caption_'+elem)[(bool ? 'add' : 'remove')+'Class']('required');
-    return this;
+  function setRequire(require) {
+    let requireObject = new Object();
+    M.out('setRequire is started!');
+    if (require instanceof Array || typeof require == 'boolean') {
+      require = M.getArray(require);
+      $.each(M.getArray(this.parent.code), function(i){
+        requireObject[this] = require[i];
+      });
+    } else {
+      requireObject = require;
+    }
+    console.dir(requireObject);
+    for (req in requireObject) {
+      M.out(req+' = '+requireObject[req].toString());
+      $('#id_'+req).attr('ismandatory', requireObject[req].toString());
+      $('#caption_'+req)[(requireObject[req] ? 'add' : 'remove')+'Class']('required');
+    }
   }
   /*
    * Veriables
@@ -142,6 +173,7 @@
    * Functions
    */
   Modern.out = out;
+  Modern.getArray = getArray;
 
   window.M = window.Modern = Modern;
   start();

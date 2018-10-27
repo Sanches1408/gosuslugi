@@ -5,15 +5,25 @@ function out(text) {
 }
 
 function methods(){
-  if ($('#modern').length) $('#modern').remove();
+  if ($('#row_modern').length) $('#row_modern').remove();
 
-  let hash = parseInt(Math.floor(Math.random() * 100));
+  let hash;
+  while (true) {
+    hash = parseInt(Math.floor(Math.random() * 100));
+    if (hash != M.activePetition) break;
+  }
   $('#row_recipientOrg').attr('hash', hash);
   M.activePetition = hash;
 
-  $('head').append($('<script>').attr('id', 'modern').text(';('+(function(){
+  $('head').append($('<script>').attr('id', 'row_modern').text(';('+(function(){
     console.log('Выполняем методы');
     let m = new M();
+    m.style({
+      'modalBackground': 'red',
+      'modalWidth': '',
+      'modalDialogWidth': '100%',
+      'radio': 'font-weight: bold;'
+    });
     // Здесь писать методы
 
   }).toString()+'());'));
