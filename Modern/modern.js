@@ -13,15 +13,16 @@
     }
 
     this.out = out;
+
     this.style = style;
-    this.addStyle = addStyle;
-    this.modalBackground = modalBackground;
-    this.modalWidth = modalWidth;
-    this.modalDialogWidth = modalDialogWidth;
-    this.radio = radio;
-    this.hideSearch = hideSearch;
-    this.hideChoice = hideChoice;
-    this.require = require;
+    this.style.addStyle = addStyle;
+    this.style.modalBackground = modalBackground;
+    this.style.modalWidth = modalWidth;
+    this.style.modalDialogWidth = modalDialogWidth;
+    this.style.radio = radio;
+    this.style.hideSearch = hideSearch;
+    this.style.hideChoice = hideChoice;
+    this.style.require = require;
 
     return this;
   }
@@ -59,7 +60,6 @@
 
   function start() {
     deleteModern();
-    M.out((new M).text);
 
     $('head').append($('<style id="ogbuStyle">'));
   }
@@ -70,6 +70,7 @@
   }
 
   function addStyle(css) {
+    M.out('Вызвано из ', this);
     let style = this.element;
     M.out('Применяем стиль '+css);
     M.out('К элементу ', style);
@@ -80,22 +81,26 @@
   }
 
   function modalBackground(color) {
+    M.out('Вызвано из ', this);
     this.addStyle.call(this, '.modal-backdrop { display: none!important; }\r\n'
       +'.modal { background: '+(color || 'rgba(0, 0, 0, .5)')+'!important; }\r\n');
     return this;
   }
 
   function modalWidth(width) {
+    M.out('Вызвано из ', this);
     this.addStyle.call(this, '.modal-dialog--petition > .modal-content { max-width: '
       +(v ? v : '80%')+'!important; width: '+(width || '80%')+'!important; }\r\n');
     return this;
   }
 
   function modalDialogWidth(width) {
+    M.out('Вызвано из ', this);
     this.addStyle.call(this, '.modal .modal-dialog { max-width: '+(width || '80%')+'!important; }\r\n');
   }
 
   function radio(font) {
+    M.out('Вызвано из ', this);
     this.addStyle.call(this,
       '.attr-field--layout > * { display: block!important; width: 100%!important; }\r\n'
       +'.attr-field--layout > *:first-child { margin-bottom: 2vh;'
@@ -105,16 +110,19 @@
   }
 
   function hideSearch(code) {
+    M.out('Вызвано из ', this);
     this.addStyle.call(this, (code ? '#row_'+code : '') + ' .bs-searchbox { display: none; }\r\n');
     return this;
   }
 
   function hideChoice(code) {
+    M.out('Вызвано из ', this);
     this.addStyle.call(this, (code ? '#row_'+code : '') + ' li:first-child() { display: none; }\r\n');
     return this;
   }
 
   function require(bool) {
+    M.out('Вызвано из ', this);
     let elem = this.element.attr('id').split('_')[1];
     $('#id_'+elem).attr('ismandatory', bool.toString());
     $('#caption_'+elem)[(bool ? 'add' : 'remove')+'Class']('required');

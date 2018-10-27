@@ -14,8 +14,6 @@ function methods(){
   $('head').append($('<script>').attr('id', 'modern').text(';('+(function(){
     console.log('Выполняем методы');
     let m = new M();
-    m.radio();
-    m.modalBackground();
     // Здесь писать методы
 
   }).toString()+'());'));
