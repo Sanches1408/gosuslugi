@@ -71,10 +71,10 @@
 
   function addStyle(css) {
     let style = this.element;
-    if (style.length) {
-      if (style.text().indexOf(css) == -1) {
-        style.text(style.text() + css);
-      }
+    M.out('Применяем стиль '+css);
+    M.out('К элементу ', style);
+    if (style.text().indexOf(css) == -1) {
+      style.text(style.text() + css);
     }
     return this;
   }
