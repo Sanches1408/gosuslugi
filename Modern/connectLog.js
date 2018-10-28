@@ -5,7 +5,12 @@ function out(text) {
 }
 
 function methods(){
-  if ($('#row_modern').length) $('#row_modern').remove();
+  $('#row_modern').remove();
+  $('#row_ogbuStyle').remove();
+  $.each(M.timers, function(){
+    M.out('Очищаем '+this);
+    clearInterval(this);
+  });
 
   let hash;
   while (true) {
@@ -22,7 +27,7 @@ function methods(){
       'modalBackground': 'red',
       'modalWidth': '',
       'modalDialogWidth': '100%',
-      'radio': 'font-weight: bold;'
+      'radio': ' font-weight: bold;'
     });
     // Здесь писать методы
 

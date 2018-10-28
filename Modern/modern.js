@@ -1,6 +1,6 @@
 ;(function(){
 
-  let version = '1.1';
+  let version = '1.2';
 
   function Modern(code) {
 
@@ -17,6 +17,7 @@
 
     this.out = out;
     this.getArray = getArray;
+    this.getObject = getObject;
 
     this.style = style;
     this.style.parent = this;
@@ -29,6 +30,12 @@
     this.style.hideSearch = hideSearch;
     this.style.hideChoice = hideChoice;
     this.style.setRequire = setRequire;
+    this.style.setHelper = setHelper;
+
+    this.address = address;
+    this.address.parent = this;
+    this.address.helpers = {};
+    this.address.mandatory = {};
 
     return this;
   }
@@ -41,6 +48,25 @@
     if (!(value instanceof Array))
       value = [value];
     return value;
+  }
+
+  let getObject = function getObject(value) {
+    M.out('Запустили getObject()');
+    console.dir(this);
+    M.out('Исходные данные ');
+    console.dir(value);
+    let tempObj = new Object();
+    if (/*value instanceof Array || typeof value != 'object'*/this.code !== undefined) {
+      value = M.getArray(value);
+      $.each(M.getArray(this.code), function(i){
+        tempObj[this] = value[i] || value[0];
+      });
+    } else {
+      tempObj = value;
+    }
+    M.out('Получили объект');
+    console.dir(tempObj);
+    return tempObj;
   }
 
   let deleteModern = function deleteModern(){
@@ -56,9 +82,14 @@
           console.log('Теперь узнаем закрыто ли заявление');
           if (!$('.modal-dialog--petition').length) {
             console.log('Заявление закрыто');
+            /*
             for (let t in M.timers) {
-              clearInterval(t);
+              clearInterval(M.timers[t]);
             }
+            */
+            $.each(M.timers, function(){
+              clearInterval(this);
+            });
             clearInterval(timer);
             $('#row_modern').remove();
             $('#row_ogbuStyle').remove();
@@ -142,29 +173,64 @@
   }
 
   function setRequire(require) {
-    let requireObject = new Object();
-    M.out('setRequire is started!');
-    if (require instanceof Array || typeof require == 'boolean') {
-      require = M.getArray(require);
-      $.each(M.getArray(this.parent.code), function(i){
-        requireObject[this] = require[i];
-      });
-    } else {
-      requireObject = require;
-    }
+    let requireObject = M.getObject.call(this.parent, require);
     console.dir(requireObject);
     for (req in requireObject) {
       M.out(req+' = '+requireObject[req].toString());
       $('#id_'+req).attr('ismandatory', requireObject[req].toString());
-      $('#caption_'+req)[(requireObject[req] ? 'add' : 'remove')+'Class']('required');
+      $('#caption_'+req+' > span')[(requireObject[req] ? 'add' : 'remove')+'Class']('required');
     }
+  }
+
+  function setHelper(helper) {
+    helper = M.getObject.call(this.parent, helper)
+    for (code in helper) {
+      $('[data-attrname="'+code+'"]').append(
+        $('<div>').addClass('attr-value-helper').text(helper[code])
+      );
+    }
+  }
+
+  function address(args) {
+    M.out('Вызов для ');
+    console.dir(this);
+    let addr = M.getObject.call(this, args);
+    M.out('Object address');
+    console.dir(addr);
+    M.timers.push(setInterval(function(){
+      let mandatory = [];
+      M.out('Search address');
+      if ($('#row_addrText').length && !+$('#id_addrText').attr('found')) {
+        M.out('Address is found!');
+        for (code in addr) {
+          let elem = $('#row_'+code);
+          if (addr[code].hasOwnProperty('setHelper') && !+elem.attr('setHelper')) {
+            M.out('Устанавливаем подсказку: '+code+' = '+addr[code]['setHelper']);
+            (new M(code)).style.setHelper(addr[code]['setHelper']);
+          }
+          if (addr[code].hasOwnProperty('setRequire') && !+elem.attr('setRequire')) {
+            mandatory.push(code);
+          }
+        }
+        $('#id_addrText').change(function(){
+          let bool = false;
+          if ($(this).val().trim() == '') {
+            bool = true;
+          }
+          (new M(mandatory)).style.setRequire(bool);
+          M.out('Обязательно: '+bool.toString());
+          console.dir(mandatory);
+        }).attr('found', '1').trigger('change');
+      }
+    }, 1000));
+    return this;
   }
   /*
    * Veriables
    */
   Modern.version = version;
   Modern.activePetition = null;
-  Modern.timers = {};
+  Modern.timers = [];
 
   /*
    * Style
@@ -174,6 +240,7 @@
    */
   Modern.out = out;
   Modern.getArray = getArray;
+  Modern.getObject = getObject;
 
   window.M = window.Modern = Modern;
   start();
