@@ -35,18 +35,21 @@ function methods(){
 }
 
 out('Проверка модуля');
-if (!this.M) {
+if (!this.M && window.location.host == 'gosuslugi74.ru' ||
+    window.location.host == '10.0.1.207:8081') {
   out('Модуль не был найден. Загружаем...');
   if (!jQuery) {
     out('jQuery не был найден. Загружаем...');
     let script = document.createElement('script');
     script.setAttribute('src', 'https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js');
-    document.getElementsByTagName('body')[0].appendChild(script);
+    document.getElementsByTagName('head')[0].appendChild(script);
   }
 
   new Promise(function(resolve){
+    out('Запускаем промис');
     let timer = setInterval(function(){
-      if (jQuery) {
+      out('Пытаемся найти jQuery');
+      if (window.jQuery) {
         clearInterval(timer);
         console.log('jQuery загружен!');
         $.ajax('download/doc/upload/modern.js')
@@ -57,9 +60,9 @@ if (!this.M) {
           console.log('Не удалось найти скрипт :(');
         });
       }
-    }, 100);
+    }, 1000);
   }).then(methods);
-} else {
+} else if (this.M && window.location.host == 'gosuslugi74.ru') {
   out('Модуль уже подключен!');
   if ($('#row_recipientOrg').attr('hash') != M.activePetition) {
     methods();

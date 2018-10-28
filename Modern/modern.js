@@ -56,7 +56,7 @@
     M.out('Исходные данные ');
     console.dir(value);
     let tempObj = new Object();
-    if (/*value instanceof Array || typeof value != 'object'*/this.code !== undefined) {
+    if (this.code !== undefined) {
       value = M.getArray(value);
       $.each(M.getArray(this.code), function(i){
         tempObj[this] = value[i] || value[0];
@@ -82,11 +82,6 @@
           console.log('Теперь узнаем закрыто ли заявление');
           if (!$('.modal-dialog--petition').length) {
             console.log('Заявление закрыто');
-            /*
-            for (let t in M.timers) {
-              clearInterval(M.timers[t]);
-            }
-            */
             $.each(M.timers, function(){
               clearInterval(this);
             });
