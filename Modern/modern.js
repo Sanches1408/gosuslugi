@@ -33,12 +33,11 @@
     this.style.hideChoice = hideChoice;
     this.style.setRequire = setRequire;
     this.style.setHelper = setHelper;
+    this.style.readOnly = readOnly;
 
     this.address = address;
     this.address.name = "Address";
     this.address.parent = this;
-    this.address.helpers = {};
-    this.address.mandatory = {};
 
     return this;
   }
@@ -65,6 +64,23 @@
     }
     return tempObj;
   }
+
+  let summary = function summary(obj) {
+    for (let o in obj) {
+      (new M()).style.readOnly(o);
+      $.each(obj[o], function(){
+        $('#id_'+this).change(function(){
+          let summ = 0;
+          $.each(obj[o], function(){
+            summ += parseFloat($('#id_'+this).val().trim().replace(',', '.'));
+          });
+          $('#id_'+o).val(summ.toFixed(2).toString().replace('NaN', 'Не все поля заполнены'))
+            .closest('.attr-field').addClass('attr-field--focused');
+        });
+      });
+    }
+  }
+
 
   let deleteModern = function deleteModern(){
     let timer = setInterval(function(){
@@ -169,6 +185,12 @@
     }
   }
 
+  function readOnly(code) {
+    $('.attr-field', $('#row_'+code)).addClass('attr-field--readonly attr-field--filled');
+    $('#id_'+code).addClass('readonly attr-value-el--filled')
+      .attr('readonly', '').val('Не все поля заполнены');
+  }
+
   function address(args) {
     let addr = M.getObject.call(this, args);
     M.timers.push(setInterval(function(){
@@ -210,6 +232,7 @@
   Modern.out = out;
   Modern.getArray = getArray;
   Modern.getObject = getObject;
+  Modern.summary = summary;
 
   window.M = window.Modern = Modern;
   start();
