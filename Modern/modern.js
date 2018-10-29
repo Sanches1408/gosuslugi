@@ -63,24 +63,18 @@
     } else {
       tempObj = value;
     }
-    M.out('Получили объект');
-    console.dir(tempObj);
     return tempObj;
   }
 
   let deleteModern = function deleteModern(){
     let timer = setInterval(function(){
-      console.log('Пытаемся найти заявление')
       if ($('#row_recipientOrg').length) {
-        console.log('Заявление нашли');
         let hash = parseInt(Math.floor(Math.random() * 100));
         $('#row_recipientOrg').attr('hash', hash);
         M.activePetition = hash;
         clearInterval(timer);
         timer = setInterval(function(){
-          console.log('Теперь узнаем закрыто ли заявление');
           if (!$('.modal-dialog--petition').length) {
-            console.log('Заявление закрыто');
             $.each(M.timers, function(){
               clearInterval(this);
             });
@@ -88,7 +82,6 @@
             $('#row_modern').remove();
             $('#row_ogbuStyle').remove();
             delete M;
-            console.log('Удалено');
           }
         }, 1000);
       }
@@ -97,10 +90,7 @@
 
   function start() {
     deleteModern();
-
-    out('Создаем ogbuStyle');
     $('head').append($('<style id="row_ogbuStyle">'));
-    console.dir($('#row_ogbuStyle'));
   }
 
   function style(func, args) {
@@ -148,12 +138,7 @@
     let style = this;
     if (this.name == 'Modern')
       style = this.style;
-    M.out('hideSearch is started!');
-    M.out('code = '+code);
-    M.out('style.parent.code = '+style.parent.code);
-    console.dir(M.getArray(code || style.parent.code));
     $.each(M.getArray(code || style.parrent.code), function(){
-      M.out('element = '+this);
       style.addStyle.call(style, (this ? '#row_'+this : '') + ' .bs-searchbox { display: none; }\r\n');
     });
   }
@@ -162,21 +147,14 @@
     let style = this;
     if (this.name == 'Modern')
       style = this.style;
-    M.out('hideChoice is started!');
-    M.out('code = '+code);
-    M.out('style.parent.code = '+style.parent.code);
-    console.dir(M.getArray(code || style.parent.code));
     $.each(M.getArray(code || style.parent.code), function(){
-      M.out('element = '+this);
       style.addStyle.call(style, (this ? '#row_'+this : '') + ' li:first-child { display: none; }\r\n');
     });
   }
 
   function setRequire(require) {
     let requireObject = M.getObject.call(this.parent, require);
-    console.dir(requireObject);
     for (req in requireObject) {
-      M.out(req+' = '+requireObject[req].toString());
       $('#id_'+req).attr('ismandatory', requireObject[req].toString());
       $('#caption_'+req+' > span')[(requireObject[req] ? 'add' : 'remove')+'Class']('required');
     }
@@ -192,20 +170,13 @@
   }
 
   function address(args) {
-    M.out('Вызов для ');
-    console.dir(this);
     let addr = M.getObject.call(this, args);
-    M.out('Object address');
-    console.dir(addr);
     M.timers.push(setInterval(function(){
       let mandatory = [];
-      M.out('Search address');
       if ($('#row_addrText').length && !+$('#id_addrText').attr('found')) {
-        M.out('Address is found!');
         for (code in addr) {
           let elem = $('#row_'+code);
           if (addr[code].hasOwnProperty('setHelper') && !+elem.attr('setHelper')) {
-            M.out('Устанавливаем подсказку: '+code+' = '+addr[code]['setHelper']);
             (new M(code)).style.setHelper(addr[code]['setHelper']);
           }
           if (addr[code].hasOwnProperty('setRequire') && !+elem.attr('setRequire')) {
@@ -218,8 +189,6 @@
             bool = true;
           }
           (new M(mandatory)).style.setRequire(bool);
-          M.out('Обязательно: '+bool.toString());
-          console.dir(mandatory);
         }).attr('found', '1').trigger('change');
       }
     }, 1000));
