@@ -54,10 +54,6 @@
   }
 
   let getObject = function getObject(value) {
-    M.out('Запустили getObject()');
-    console.dir(this);
-    M.out('Исходные данные ');
-    console.dir(value);
     let tempObj = new Object();
     if (this.code !== undefined) {
       value = M.getArray(value);
