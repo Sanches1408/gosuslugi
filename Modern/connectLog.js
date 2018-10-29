@@ -20,8 +20,10 @@ function methods(){
   $('#row_recipientOrg').attr('hash', hash);
   M.activePetition = hash;
 
-  $('head').append($('<script>').attr('id', 'row_modern').text(';('+(function(){
+  $('head').append($('<style>').attr('id', 'row_ogbuStyle'))
+    .append($('<script>').attr('id', 'row_modern').text(';('+(function(){
     console.log('Выполняем методы');
+    console.dir($('#row_ogbuStyle'));
     let m = new M();
     m.style({
       'modalBackground': 'red',

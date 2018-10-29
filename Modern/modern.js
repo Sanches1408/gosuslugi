@@ -1,10 +1,11 @@
 ;(function(){
 
-  let version = '1.2';
+  let version = '1.3';
 
   function Modern(code) {
 
     this.version = version;
+    this.name = "Modern";
     this.code = code;
 
     if (code !== undefined) {
@@ -20,6 +21,7 @@
     this.getObject = getObject;
 
     this.style = style;
+    this.style.name = "Style";
     this.style.parent = this;
     this.style.element = $('#row_ogbuStyle');
     this.style.addStyle = addStyle;
@@ -33,6 +35,7 @@
     this.style.setHelper = setHelper;
 
     this.address = address;
+    this.address.name = "Address";
     this.address.parent = this;
     this.address.helpers = {};
     this.address.mandatory = {};
@@ -99,7 +102,9 @@
   function start() {
     deleteModern();
 
+    out('Создаем ogbuStyle');
     $('head').append($('<style id="row_ogbuStyle">'));
+    console.dir($('#row_ogbuStyle'));
   }
 
   function style(func, args) {
@@ -145,6 +150,8 @@
 
   function hideSearch(code) {
     let style = this;
+    if (this.name == 'Modern')
+      style = this.style;
     M.out('hideSearch is started!');
     M.out('code = '+code);
     M.out('style.parent.code = '+style.parent.code);
@@ -157,6 +164,8 @@
 
   function hideChoice(code) {
     let style = this;
+    if (this.name == 'Modern')
+      style = this.style;
     M.out('hideChoice is started!');
     M.out('code = '+code);
     M.out('style.parent.code = '+style.parent.code);
