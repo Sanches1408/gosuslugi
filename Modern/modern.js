@@ -1,6 +1,6 @@
 ;(function(){
 
-  let version = '1.3';
+  let version = '1.4';
 
   function Modern(code) {
 
@@ -216,6 +216,169 @@
     }, 1000));
     return this;
   }
+
+
+  function dictionary(v, v2, b) {
+    if (v) {
+      new Promise(function(resolve){
+        if (!$('#'+v).length)
+          $('body').append($('<script>').attr({'src': 'download/doc/upload/'+v+'.js', 'id': v}));
+        let timer = setInterval(function(){
+          if (M.dictionary) {
+            clearInterval(timer);
+            resolve(1);
+          }
+        }, 100);
+      }).then(function(){
+        M.dictionary.searchAttr(v, v2, b);
+      });
+    }
+  }
+
+  function searchAttr(vDic, vArr, vBool) {
+    let v = vDic, v2 = vArr;
+    M.timers.push(setInterval(function(){
+      let bool = true;
+      $.each(v2, function(i){
+        if (!$('#row_'+v2[i]).length || +$('#row_'+v2[i]).attr('dicAction')) {
+          bool = false;
+        } else if ($('#row_'+v2[i]).length && !+$('#row_'+v2[i]).attr('dicAction') && vBool) {
+          bool = true;
+          if (!vBool[0]) vBool = [];
+          vBool.push(i-1);
+        }
+      });
+      if (bool) {
+        $.each(v2, function(i){ $('#row_'+v2[i]).attr('dicAction', '1'); });
+        let obj = M.dictionary.list[v];
+        $.each(v2, function(i){
+          if (vBool && vBool[0] == i) {
+            $('#row_'+v2[vBool[0]]+' li:first-child').click(function(){
+              M.dictionary.hideAttr(v2, vBool[0]+1);
+            });
+          } else {
+            let p = $('#row_'+this), c = $('button', p);
+            if (c.length)
+              c = c.attr('title').trim();
+            else
+              c = $($('input', p)[0]).val();
+            if (c == 'Выберите' || c == '') {
+              if (i) {
+                p.hide();
+              } else {
+                (new M(this)).style.setRequire(true);
+              }
+            } else {
+              obj = obj[c];
+              if (obj) {
+                $(M.dictionary.getLiOrCheck(vArr[obj.lvl])[1]).hide();
+                let a = M.dictionary.getAttr(vArr, obj);
+                for (let i = 1; i < a.length; i++) {
+                  $(a[i]).show();
+                }
+              }
+              (new M(this)).style.setRequire(true);
+            }
+          }
+        });
+        M.dictionary.setAction(v, v2);
+      }
+    }, 100));
+  }
+
+  function setAction(vDic, vArr) {
+    let v = vArr, d = vDic;
+    function recursive(list) {
+      let bool = false, key;
+      for (key in list) {
+        bool = true;
+        if (key != 'lvl' && recursive(list[key])) {
+          $(M.dictionary.getElems(v[list.lvl], key)).click(
+            {k: key, l: list, v: v},
+            function(o) {
+              M.dictionary.hideAttr(o.data.v, o.data.l.lvl+1);
+              let arr = M.dictionary.getAttr(o.data.v, o.data.l[o.data.k]),
+                r = $('.attr-value', arr[0]);
+              if (r.length > 1)
+                r = $(r[0]);
+              (new M(r.attr('data-attrname'))).style.setRequire(true);
+              $.each(arr, function(){ $(this).show(); });
+              if (arr.length == 2) $('a', arr[1]).trigger('click');
+            }
+          );
+        } else if (key != 'lvl') {
+          $(M.dictionary.getElems(v[list.lvl], key)).click(
+            {k: key, l: list, v: v},
+            function(o) {
+              M.dictionary.hideAttr(o.data.v, o.data.l.lvl+1);
+              (new M(o.data.v[o.data.l.lvl])).style.setRequire(true);
+            }
+          );
+        }
+      }
+      return bool;
+    }
+    recursive(M.dictionary.list[d]);
+  }
+
+  function getAttr(v, list) {
+    let arr = [], key, a;
+    for (key in list) {
+      if (key != 'lvl') {
+        a = M.dictionary.getElems(v[list.lvl], key);
+        if (arr.length) {
+          arr.push(a[1]);
+        } else {
+          arr = [a[0], a[1]];
+        }
+      }
+    }
+    return arr;
+  }
+
+  function getElems(v, text) {
+    let e = M.dictionary.getLiOrCheck(v);
+    $.each(e[1], function(i){
+      if ($(e[1][i]).text().trim() == text) {
+        e[1] = e[1][i];
+        return false;
+      }
+    });
+    return e;
+  }
+
+  function getLiOrCheck(v) {
+    let e = [$('#row_'+v)];
+    e[1] = $('.checkbox', e[0]);
+    e[2] = $('.checkbox input:checked', e[0]);
+    if (!e[1].length) {
+      e[1] = $('li:not(:first-child)', e[0]);
+      e[2] = $('li:first-child a', e[0]);
+    }
+    return e;
+  }
+
+  function hideAttr(v, l) {
+    for (let i = l; i < v.length; i++) {
+      let arr = M.dictionary.getLiOrCheck(v[i]);
+      $.each(arr, function(j){
+        if (j == 2)
+          $(this).trigger('click');
+        else
+          $(this).hide();
+      });
+      (new M(v[i])).style.setRequire(false);
+    }
+  }
+
+  dictionary.list = {};
+  dictionary.searchAttr = searchAttr;
+  dictionary.setAction = setAction;
+  dictionary.getAttr = getAttr;
+  dictionary.getElems = getElems;
+  dictionary.hideAttr = hideAttr;
+  dictionary.getLiOrCheck = getLiOrCheck;
+
   /*
    * Veriables
    */
@@ -233,6 +396,7 @@
   Modern.getArray = getArray;
   Modern.getObject = getObject;
   Modern.summary = summary;
+  Modern.dictionary = dictionary;
 
   window.M = window.Modern = Modern;
   start();

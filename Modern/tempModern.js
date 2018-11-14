@@ -576,8 +576,7 @@
         }, 100);
       }
     }
-
-    function dictionary(v, v2) {
+    function dictionary(v, v2, b) {
       if (v) {
         new Promise(function(resolve){
           if (!$('#'+v).length)
@@ -589,72 +588,145 @@
             }
           }, 100);
         }).then(function(){
-          M.dictionary.searchAttr(v2);
+          M.dictionary.searchAttr(v, v2, b);
         });
       }
     }
 
-    function searchAttr(v) {
+    function searchAttr(vDic, vArr, vBool) {
+      let v = vDic, v2 = vArr;
       M.dictionary.timer.push(setInterval(function(){
         let bool = true;
-        $.each(v, function(i){
-          if (!$('#row_'+v[i]).length || +$('#row_'+v[i]).attr('dicAction')) {
+        $.each(v2, function(i){
+          if (!$('#row_'+v2[i]).length || +$('#row_'+v2[i]).attr('dicAction')) {
             bool = false;
+          } else if ($('#row_'+v2[i]).length && !+$('#row_'+v2[i]).attr('dicAction') && vBool) {
+            bool = true;
+            if (!vBool[0]) vBool = [];
+            vBool.push(i-1);
           }
         });
         if (bool) {
-          M.dictionary.setAction(v);
-          $.each(v, function(i){ $('#row_'+v[i]).attr('dicAction', '1'); });
+          $.each(v2, function(i){ $('#row_'+v2[i]).attr('dicAction', '1'); });
+          let obj = M.dictionary.list[v];
+          $.each(v2, function(i){
+            if (vBool && vBool[0] == i) {
+              $('#row_'+v2[vBool[0]]+' li:first-child').click(function(){
+                M.dictionary.hideAttr(v2, vBool[0]+1);
+              });
+            } else {
+              let p = $('#row_'+this), c = $('button', p);
+              if (c.length)
+                c = c.attr('title').trim();
+              else
+                c = $($('input', p)[0]).val();
+              if (c == 'Выберите' || c == '') {
+                if (i) {
+                  p.hide();
+                } else {
+                  M.style.require(this, true);
+                }
+              } else {
+                obj = obj[c];
+                if (obj) {
+                  $(M.dictionary.getLiOrCheck(vArr[obj.lvl])[1]).hide();
+                  let a = M.dictionary.getAttr(vArr, obj);
+                  for (let i = 1; i < a.length; i++) {
+                    $(a[i]).show();
+                  }
+                }
+                M.style.require(this, true);
+              }
+            }
+          });
+          M.dictionary.setAction(v, v2);
         }
       }, 100));
     }
 
-    function setAction(v) {
-      function f(list, lvl) {
-        function searchAttr(t, l) {
-          function g(q) {
-            let r;
-            $.each($('#row_'+v[l]+' '+q), function(){
-              if ($(this).text().trim() == t) r = this;
-            });
-            return r;
-          }
-          return g('li:not(:first-child)') || g('.checkbox');
-        }
-        let bool = false;
-        for (let key in list) {
+    function setAction(vDic, vArr) {
+      let v = vArr, d = vDic;
+      function recursive(list) {
+        let bool = false, key;
+        for (key in list) {
           bool = true;
-          if (f(list[key], lvl+1)) {
-            let arr = [];
-            for (let key2 in list[key]) {
-              arr.push(searchAttr(key2, lvl+1));
-            }
-            $(searchAttr(key, lvl)).click(function(){
-              $('#row_'+v[lvl+1]+' li:not(:first-child)').hide();
-              $('#row_'+v[lvl+1]+' .checkbox').hide();
-              let elem = $('#row_'+v[lvl+1]+' .checkbox');
-              if (elem.length) {
-                $.each(elem, function(){
-                  if ($('input', this).prop('checked'))
-                    $('input', this).trigger('click');
-                });
-              } else {
-                elem = $('#row_'+v[lvl+1]+' li:not(:first-child)');
-                $('#row_'+v[lvl+1]+' li:first-child a').trigger('click');
+          if (key != 'lvl' && recursive(list[key])) {
+            $(M.dictionary.getElems(v[list.lvl], key)).click(
+              {k: key, l: list, v: v},
+              function(o) {
+                M.dictionary.hideAttr(o.data.v, o.data.l.lvl+1);
+                let arr = M.dictionary.getAttr(o.data.v, o.data.l[o.data.k]),
+                  r = $('.attr-value', arr[0]);
+                if (r.length > 1)
+                  r = $(r[0]);
+                M.style.require(r.attr('data-attrname'), true);
+                $.each(arr, function(){ $(this).show(); });
+                if (arr.length == 2) $('a', arr[1]).trigger('click');
               }
-              elem.hide();
-              $.each(arr, function(i) {
-                $(arr[i]).show();
-              })
-            });
+            );
+          } else if (key != 'lvl') {
+            $(M.dictionary.getElems(v[list.lvl], key)).click(
+              {k: key, l: list, v: v},
+              function(o) {
+                M.dictionary.hideAttr(o.data.v, o.data.l.lvl+1);
+                M.style.require(o.data.v[o.data.l.lvl], true);
+              }
+            );
           }
         }
         return bool;
       }
+      recursive(M.dictionary.list[d]);
+    }
 
+    function getAttr(v, list) {
+      let arr = [], key, a;
+      for (key in list) {
+        if (key != 'lvl') {
+          a = M.dictionary.getElems(v[list.lvl], key);
+          if (arr.length) {
+            arr.push(a[1]);
+          } else {
+            arr = [a[0], a[1]];
+          }
+        }
+      }
+      return arr;
+    }
 
+    function getElems(v, text) {
+      let e = M.dictionary.getLiOrCheck(v);
+      $.each(e[1], function(i){
+        if ($(e[1][i]).text().trim() == text) {
+          e[1] = e[1][i];
+          return false;
+        }
+      });
+      return e;
+    }
 
-      f(M.dictionary.list, 0);
+    function getLiOrCheck(v) {
+      let e = [$('#row_'+v)];
+      e[1] = $('.checkbox', e[0]);
+      e[2] = $('.checkbox input:checked', e[0]);
+      if (!e[1].length) {
+        e[1] = $('li:not(:first-child)', e[0]);
+        e[2] = $('li:first-child a', e[0]);
+      }
+      return e;
+    }
+
+    function hideAttr(v, l) {
+      for (let i = l; i < v.length; i++) {
+        let arr = M.dictionary.getLiOrCheck(v[i]);
+        $.each(arr, function(j){
+          if (j == 2)
+            $(this).trigger('click');
+          else
+            $(this).hide();
+        });
+        M.style.require(v[i], false);
+      }
     }
 
     /**
@@ -726,6 +798,10 @@
     dictionary.list = {};
     dictionary.searchAttr = searchAttr;
     dictionary.setAction = setAction;
+    dictionary.getAttr = getAttr;
+    dictionary.getElems = getElems;
+    dictionary.hideAttr = hideAttr;
+    dictionary.getLiOrCheck = getLiOrCheck;
     dictionary.timer = [];
     /**
      * ---===Modern.JS===---

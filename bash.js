@@ -45,3 +45,36 @@ function f(v) {
     return false;
   }
 }
+
+
+function f(v) {
+  return (v.length == 10 || v.length == 12);
+}
+
+execute(bsh{% result = sx.datastore.impl.SXIterator.getInstance().next("code",true)-1 %})
+
+
+bsh{%
+  String[] list = {
+    "updateMshUL", "educationFL", "LesZashitaFL", "LesZashitaIP",
+    "LesZashitaUL", "LesOtchetPozharFL", "LesOtchetPozharIP",
+    "LesOtchetPozharUL", "LesVosproizvodFL", "LesVosproizvodIP",
+    "LesVosproizvodUL", "LesOtchetFL", "LesOtchetIP", "LesOtchetUL",
+    "lesDeclaration", "lesDeclarationIP", "lesDeclarationUL",
+    "gzhiPredLicIP", "gzhiPredLicUL", "gzhiDublikatIP", "gzhiDublikatUL",
+    "gzhiPereofIP", "gzhiPereofUL", "dataMinzdravFL", "dataMinzdravIP",
+    "dataMinzdravUL", "DublicatMinzdravIP", "DublikatMinzdravUL",
+    "CreateMinzdravIP", "CreateMinzdravUL", "PrekrashenieMinzdravIP",
+    "PrekrashenieMinzdravUL", "PereoformlenieMinzdravIP", "PereoformlenieMinzdravUL",
+    "PredlicZagotLomMetIP", "PredlicZagotLomMetUL", "PereoflicZagotLomMetIP",
+    "PereoflicZagotLomMetUL", "taxiVydachaRazresheniyaIP", "taxiVydachaRazresheniyaUL",
+    "taxiVydachaDublikataIP", "taxiVydachaDublikataUL", "taxiPereoformlenieIP",
+    "taxiPereoformlenieUL", "perevozkaGruzovFL", "perevozkaGruzovIP",
+    "perevozkaGruzovUL", "zemlyaCreateFL", "zemlyaCreateIP", "zemlyaCreateUL",
+    "PereplanirZhil", "archGPZUFL", "archGPZUUL", "archRazreshStroitFL",
+    "archRazreshStroitUL", "archIzmenRazreshStroitFL", "archIzmenRazreshStroitUL",
+    "archPrordlenieRazreshStroitFL", "archPrordlenieRazreshStroitUL",
+    "archIndivZhilFL2", "archIndivZhilUL", "SvedeniyaMinzdravUL", "archGPZUFL280918"
+  };
+  result = Arrays.asList(list).indexOf(new String(dataMap.get("code"))) > -1;
+%}
