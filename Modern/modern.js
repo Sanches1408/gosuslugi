@@ -1,6 +1,6 @@
 ;(function(){
 
-  let version = '1.4';
+  let version = '1.5';
 
   function Modern(code) {
 
