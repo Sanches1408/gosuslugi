@@ -48,10 +48,51 @@ function f(v) {
 
 
 function f(v) {
-  return (v.length == 10 || v.length == 12);
+  let c = +$('#row_G2Choice select').val().trim().split('$')[0];
+  return (v.length == 10 && c == 2 || v.length == 12 && c == 1);
 }
 
-execute(bsh{% result = sx.datastore.impl.SXIterator.getInstance().next("code",true)-1 %})
+function f(v) {
+  let style = ['G3Choice3', 'G3Choice2'],
+      choice = +v.split('$')[0],
+      m = (new M()).style.element;
+  function f(m, arr) {
+    $.each(arr, function(){
+      m.text(m.text().replace('#row_'+this+' { display: none; }\r\n', ''));
+    });
+  }
+  f(m, style);
+  if (choice == 1 && !+$('#row_G2Choice2').attr('modernclick')) {
+    setTimeout(function(){
+      $.each($('#row_G2Choice2 li:not(:first-child) a'), function(){
+        $(this).click(function(){
+          let m = new M().style, i = 1;
+          f(m.element, style);
+          if ($(this).text().trim() == 'Реорганизация путём преобразования') {
+            i = 0
+          }
+          m.addStyle('#row_'+style[i]+' { display: none; }\r\n');
+          var timer = setInterval(function(){
+            console.log('correct');
+            if ($('#row_'+style[i]).length) {
+              (new M(style[i])).style.setRequire(true);
+              clearInterval(timer);
+            }
+          }, 100);
+        });
+      });
+      $('#row_G2Choice2').attr('modernclick', '1');
+      $('#row_G2Choice2 li:first-child a').trigger('click');
+    }, 1000);
+  } else if (choice == 2) {
+    $('#row_G2Choice2').attr('modernclick', '0');
+  }
+  return false;
+}
+
+
+
+execute(bsh{% result = sx.datastore.impl.SXIterator.getInstance().next("code",false) %})
 
 
 bsh{%
@@ -77,4 +118,11 @@ bsh{%
     "archIndivZhilFL2", "archIndivZhilUL", "SvedeniyaMinzdravUL", "archGPZUFL280918"
   };
   result = Arrays.asList(list).indexOf(new String(dataMap.get("code"))) > -1;
+%}
+
+bsh{%
+  String[] list = {
+    "c94adc68-7c9c-45d1-8adc-687c9cf5d1fa"
+  };
+  result = Arrays.asList(list).indexOf(new String(dataMap.get("guid"))) > -1;
 %}

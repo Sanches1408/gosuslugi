@@ -34,6 +34,7 @@
     this.style.setRequire = setRequire;
     this.style.setHelper = setHelper;
     this.style.readOnly = readOnly;
+    this.style.editCell = editCell;
 
     this.address = address;
     this.address.name = "Address";
@@ -68,6 +69,7 @@
   let summary = function summary(obj) {
     for (let o in obj) {
       (new M()).style.readOnly(o);
+      $('#id_'+o).val('Не все поля заполнены');
       $.each(obj[o], function(){
         $('#id_'+this).change(function(){
           let summ = 0;
@@ -81,6 +83,10 @@
     }
   }
 
+  let deleteAddress = function deleteAddress(v) {
+    let elem = $('textarea', $(v).closest('.attr-field'));
+    $(elem).val('').prev().val('').closest('.attr-field--filled').removeClass('attr-field--filled');
+  }
 
   let deleteModern = function deleteModern(){
     let timer = setInterval(function(){
@@ -129,13 +135,14 @@
   }
 
   function modalBackground(color) {
-    this.addStyle.call(this, '.modal-backdrop { display: none!important; }\r\n'
+    this.addStyle.call(this, '.modal-backdrop:not(.loader) { display: none!important; }\r\n'
       +'.modal { background: '+(color || 'rgba(0, 0, 0, .5)')+'!important; }\r\n');
   }
 
   function modalWidth(width) {
     this.addStyle.call(this, '.modal-dialog--petition > .modal-content { max-width: '
-      +(width || '80%')+'!important; width: '+(width || '80%')+'!important; }\r\n');
+      +(width || '80%')+'!important; width: '+(width || '80%')+'!important; }\r\n'
+      +'aside { width: 150px!important; }\r\n');
   }
 
   function modalDialogWidth(width) {
@@ -188,11 +195,30 @@
   function readOnly(code) {
     $('.attr-field', $('#row_'+code)).addClass('attr-field--readonly attr-field--filled');
     $('#id_'+code).addClass('readonly attr-value-el--filled')
-      .attr('readonly', '').val('Не все поля заполнены');
+      .attr('readonly', '');
+  }
+
+  function editCell() {
+    let style = this;
+    if (this.name == 'Modern')
+      style = this.style;
+    style.addStyle.call(style, '.modern-edit { color: silver; cursor: pointer; }\r\n'
+      +'.modern-edit:hover { color:  #0063b0; }\r\n.modern-edit::after { content: ""; }\r\n');
+    M.timers.push(setInterval(function(){
+      $.each($('.table td'), function(){
+        if ($(this).text().trim() == '') {
+          $(this).html('<span class="table-action--edit modern-edit">Открыть для просмотра/редактирования</span>');
+        }
+      });
+    }, 100));
   }
 
   function address(args) {
     let addr = M.getObject.call(this, args);
+    var element = '<div class="table-actions" style="text-align: right; padding: 2vh 0 0;">'
+          +'<a class="btn btn-default" title="Удалить адрес" onclick="M.deleteAddress(this);">'
+          +'Очистить адрес</a></div>',
+        args = ['10344729@SXClass', '11309207@SXClass'];
     M.timers.push(setInterval(function(){
       let mandatory = [];
       if ($('#row_addrText').length && !+$('#id_addrText').attr('found')) {
@@ -205,15 +231,24 @@
             mandatory.push(code);
           }
         }
-        $('#id_addrText').change(function(){
+        $('#id_addrText').on('input', function(){
           let bool = false;
           if ($(this).val().trim() == '') {
             bool = true;
           }
           (new M(mandatory)).style.setRequire(bool);
-        }).attr('found', '1').trigger('change');
+        }).attr('found', '1').trigger('input');
       }
-    }, 1000));
+      $.each($('textarea'), function(){
+        try {
+          let id = $(this).attr('onclick').split("'")[1].split("'")[0];
+          if ((id == args[0] || id == args[1]) && !+$(this).attr('butDel')) {
+            $($(this).closest('.attr-field')).append($(element));
+            $(this).attr('butDel', '1');
+          }
+        } catch(e) {}
+      });
+    }, 100));
     return this;
   }
 
@@ -371,6 +406,104 @@
     }
   }
 
+
+  function autocomplete(v, v2) {
+    if (!$('#row_'+v).length)
+      $('body').append($('<script>').attr({'src': 'download/doc/upload/'+v+'.js', 'id': 'row_'+v}));
+    M.timers.push(setInterval(function(){
+      let elem = $('#row_'+v2);
+      if (elem.length && !+elem.attr('autocomplite')) {
+        $('li:not(:first-child)', elem).click(function(){
+          let f = M.dictionary.list[v],
+              text = $(this).text().trim();
+          for (code in f[text]) {
+            if (f[text][code] instanceof Array) {
+              M.dictionary.hideAttr([code], 0);
+              $('#row_'+code).show();
+              let bool = f[text][code].length == 1;
+              $.each(f[text][code], function(){
+                let elem = $(M.dictionary.getElems(code, this)[1]);
+                elem.show();
+                if (f[text][code].length == 1)
+                  $('a', elem).trigger('click');
+              });
+            } else {
+              $('#row_'+code+' .attr-field').addClass('attr-field--filled');
+              $('#id_'+code).val(f[text][code]);
+            }
+            (new M(code)).style.setRequire(true);
+          }
+        });
+        elem.attr('autocomplite', '1');
+      }
+    }, 500));
+  }
+
+
+  function notice(v) {
+    $('body').append($('<div id="modernDialog" class="modal modal--alert in" tabindex="-1" role="alertdialog"'
+      +'aria-hidden="true" style="display: block; padding-right: 17px; z-index: 1050; background: rgba(0, 0, 0, .5);">'
+      +'<div class="modal-dialog">'
+      +'<button type="button" class="modal-close" data-behavior="closeWidgetModal" '
+      +'onclick="$(\'#modernDialog\').remove();"></button>'
+      +'<div class="modal-content">'
+      +'<header class="modal-header"><h1 class="modal-title">Уведомление</h1></header>'
+      +'<div class="modal-body">'+v+'</div></div><div class="modal-footer">'
+      +'<button type="button" class="btn btn--accept btn--cancel btn-primary" '
+      +'onclick="$(\'#modernDialog\').remove();">Ок</button>'
+      +'</div></div></div>'));
+  }
+
+
+  function addNote(v, e) {
+    e = e ? e : '[data-grpid="qPetit"]';
+    (new M()).style.addStyle('.alert > a { display: block; margin: 2vh 0 0 0; }\r\n');
+    $(e).prepend('<div class="alert alert-warning"><strong class="alert-title">Примечание</strong>'+v+'</div>');
+  }
+
+
+  function timeFromDictionary(id1, id2, b) {
+    new Promise(function(resolve){
+      if ($('#row_'+id1).length && $('#row_'+id2).length)
+        resolve(1);
+    }).then(function(){
+      var list1 = $('#row_'+id1+' li:not(:first-child)'),
+          list2 = $('#row_'+id2+' li:not(:first-child)');
+      if (b) {
+        $(list1[list1.length-1]).hide();
+      }
+      $.each(list1, function(i, v){
+        $(v).click(function(){
+          var index = $(this).attr('data-original-index');
+          list2.show();
+          $.each(list2, function(i, v){
+            if ($(v).attr('data-original-index') <= index)
+              $(v).hide();
+          });
+        });
+      });
+    });
+  }
+
+  function fixBySection(n, t) {
+    M.timers.push(setInterval(function(){
+      if ($('.subgroup-num').text().trim() != '') {
+        clearInterval(M.timers[M.fixTimer]);
+        $('.subgroup-num').each(function(){
+          if (+$(this).text() == n) {
+            var sectionN = $('<div>').addClass('subgroup-num').text(n+1),
+              sectionT = $('<div>')
+              .addClass('subgroup-title subgroup-title__top')
+              .append($('<span>').addClass('subgroup-title-text').text(t));
+            $(this).parent().next().prepend(sectionT).prepend(sectionN);
+          }
+        });
+      }
+    }, 1000));
+    M.fixTimer = M.timers.length - 1;
+  }
+
+
   dictionary.list = {};
   dictionary.searchAttr = searchAttr;
   dictionary.setAction = setAction;
@@ -397,6 +530,12 @@
   Modern.getObject = getObject;
   Modern.summary = summary;
   Modern.dictionary = dictionary;
+  Modern.autocomplete = autocomplete;
+  Modern.deleteAddress = deleteAddress;
+  Modern.notice = notice;
+  Modern.addNote = addNote;
+  Modern.timeFromDictionary = timeFromDictionary;
+  Modern.fixBySection = fixBySection;
 
   window.M = window.Modern = Modern;
   start();
