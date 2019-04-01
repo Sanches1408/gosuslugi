@@ -5,7 +5,7 @@ bsh{% java.text.SimpleDateFormat df = sx.common.SXDateFormatStore.getDateFormat(
 bsh{% java.text.SimpleDateFormat df = sx.common.SXDateFormatStore.getDateFormat("yyyyMMdd"); Date t = new Date(); String result = df.format(t.getTime() + (1000*60*60*24*15)); %}
 
 bsh{% int result = 60; %}
-
+bsh{% long result = getTime(); %}
 <script id="helloScript">
   a = 'https://gosuslugi74.ru/pgu/services/info.htm?category=15707@egOrganization&id=7546@egService&target={NUMBER}@egServiceTarget';
   n = '';
@@ -115,7 +115,21 @@ bsh{%
     "PereplanirZhil", "archGPZUFL", "archGPZUUL", "archRazreshStroitFL",
     "archRazreshStroitUL", "archIzmenRazreshStroitFL", "archIzmenRazreshStroitUL",
     "archPrordlenieRazreshStroitFL", "archPrordlenieRazreshStroitUL",
-    "archIndivZhilFL2", "archIndivZhilUL", "SvedeniyaMinzdravUL", "archGPZUFL280918"
+    "archIndivZhilFL2", "archIndivZhilUL", "SvedeniyaMinzdravUL", "archGPZUFL280918",
+    "archIzmenRazreshStroitFLprod", "archIzmenRazreshStroitUL", "arhivSprUL",
+    "archIzmenRazreshStroitULprod", "archGPZUFLprod", "getInfo", "createLomIP",
+    "archGPZUUL2", "archGPZUULprod", "createBlagoIP", "createBlagoFL", "createBlagoUL",
+    "archIndivZhilFL2test", "archIndivZhilFLprod", "archIndivZhilULprod",
+    "archRazreshStroitFL2", "archRazreshStroitFLprod", "archRazreshStroitFLNovReg",
+    "archRazreshStroitULprod", "closeBlagoIP", "closeBlagoFL", "closeBlagoUL",
+    "archPrordlenieRazreshStroitFLprod", "updateLomIP", "updateLomUL", "closeMinzdravUL",
+    "archPrordlenieRazreshStroitULprod", "sznPosobPogrebenie", "szn7400000000218470831",
+    "createLomIP", "createLomUL", "lesDeclarationFL", "lesDeclarationIP", "lesDeclarationUL",
+    "updateBlagoIP", "updateBlagoFL", "updateBlagoUL", "RsmevHuntRequest",
+    "GTNpostnauchetFL", "GTNpostnauchetUL", "iOPNRTVCOfl", "obDoKArFoflup",
+    "oVODLISPOIIRVfl", "arhivSprFL", "orPrOpObRafl", "postanGrazhIndivZhilStroy",
+    "pRGUSVPNRfl", "predostArendZemUch", "examVUsamTr", "RsmevHuntingRequest",
+    "sGVPPRARVPNRfl", "gtnTehosmotrFL", "gtnTehosmotrUL"
   };
   result = Arrays.asList(list).indexOf(new String(dataMap.get("code"))) > -1;
 %}

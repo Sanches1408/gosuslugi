@@ -1,11 +1,7 @@
 true;
 
 function methods(){
-  $('#row_modern').remove();
-  $('#row_ogbuStyle').remove();
-  $.each(M.timers, function(){
-    clearInterval(this);
-  });
+  M.getDelete();
 
   let hash;
   while (true) {
@@ -18,6 +14,12 @@ function methods(){
   $('head').append($('<style>').attr('id', 'row_ogbuStyle'))
     .append($('<script>').attr('id', 'row_modern').text(';('+(function(){
     let m = new M();
+    m.style({
+      "modalBackground": "rgba(0, 0, 0, 0.5)",
+      "radio": " font-weight: bold;",
+      "hideChoice": ["recipientOrg"]
+    });
+    (new M()).address();
   }).toString()+'());'));
 }
 
@@ -33,7 +35,7 @@ if (!this.M && window.location.host == 'gosuslugi74.ru' ||
     let timer = setInterval(function(){
       if (window.jQuery) {
         clearInterval(timer);
-        $.ajax('download/doc/upload/modern.js')
+        $.ajax('images/upload/modern.js?'+(+new Date()))
         .done(function() {
           resolve();
         });

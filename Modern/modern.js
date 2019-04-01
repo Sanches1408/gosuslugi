@@ -97,12 +97,8 @@
         clearInterval(timer);
         timer = setInterval(function(){
           if (!$('.modal-dialog--petition').length) {
-            $.each(M.timers, function(){
-              clearInterval(this);
-            });
             clearInterval(timer);
-            $('#row_modern').remove();
-            $('#row_ogbuStyle').remove();
+            M.getDelete();
             delete M;
           }
         }, 1000);
@@ -178,8 +174,11 @@
   function setRequire(require) {
     let requireObject = M.getObject.call(this.parent, require);
     for (req in requireObject) {
+      if (!$('#row_'+req+' .star').length)
+        $('#caption_'+req).append($('<span>').text('*').addClass('star'));
+      $('#row_'+req+' .star')[(requireObject[req] ? 'show' : 'hide')]();
       $('#id_'+req).attr('ismandatory', requireObject[req].toString());
-      $('#caption_'+req+' > span')[(requireObject[req] ? 'add' : 'remove')+'Class']('required');
+      //$('#caption_'+req+' > span')[(requireObject[req] ? 'add' : 'remove')+'Class']('required');
     }
   }
 
@@ -256,8 +255,8 @@
   function dictionary(v, v2, b) {
     if (v) {
       new Promise(function(resolve){
-        if (!$('#'+v).length)
-          $('body').append($('<script>').attr({'src': 'download/doc/upload/'+v+'.js', 'id': v}));
+        if (!$('#row_'+v).length)
+          $('body').append($('<script>').attr({'src': 'images/upload/'+v+'.js', 'id': 'row_'+v}));
         let timer = setInterval(function(){
           if (M.dictionary) {
             clearInterval(timer);
@@ -409,7 +408,7 @@
 
   function autocomplete(v, v2) {
     if (!$('#row_'+v).length)
-      $('body').append($('<script>').attr({'src': 'download/doc/upload/'+v+'.js', 'id': 'row_'+v}));
+      $('body').append($('<script>').attr({'src': 'images/upload/'+v+'.js', 'id': 'row_'+v}));
     M.timers.push(setInterval(function(){
       let elem = $('#row_'+v2);
       if (elem.length && !+elem.attr('autocomplite')) {
@@ -490,12 +489,15 @@
       if ($('.subgroup-num').text().trim() != '') {
         clearInterval(M.timers[M.fixTimer]);
         $('.subgroup-num').each(function(){
-          if (+$(this).text() == n) {
+          let number = +$(this).text().trim();
+          if (number == n) {
             var sectionN = $('<div>').addClass('subgroup-num').text(n+1),
               sectionT = $('<div>')
               .addClass('subgroup-title subgroup-title__top')
               .append($('<span>').addClass('subgroup-title-text').text(t));
             $(this).parent().next().prepend(sectionT).prepend(sectionN);
+          } else if (number > n) {
+            $(this).text(number+1);
           }
         });
       }
@@ -503,6 +505,16 @@
     M.fixTimer = M.timers.length - 1;
   }
 
+  function getDelete() {
+    $('#row_modern').remove();
+    $('#row_ogbuStyle').remove();
+    $.each(M.timers, function(){
+      clearInterval(this);
+    });
+    for (key in M.dictionary.list) {
+      $('#row_'+key).remove();
+    }
+  }
 
   dictionary.list = {};
   dictionary.searchAttr = searchAttr;
@@ -536,6 +548,7 @@
   Modern.addNote = addNote;
   Modern.timeFromDictionary = timeFromDictionary;
   Modern.fixBySection = fixBySection;
+  Modern.getDelete = getDelete;
 
   window.M = window.Modern = Modern;
   start();
