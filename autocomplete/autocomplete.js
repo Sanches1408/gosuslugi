@@ -16,40 +16,47 @@
       }
       return mask;
     },
-    setValue_string: function(){
-      var str = 'test';
-      if ( setValue.mask ) {
-        if ( this.regExp ) {
-          while (true) {
-            str = prompt("Значение поля задается регулярным выражением:\r\n\r\n"
-                  +setValue.clearRegExp()+"\r\n\r\nВведите значение для заполнения поля.\r\n\r\n"
-                  +"(для отмены ничего не вводите)\r\n\r\n");
-            if ( !str || !str.length )
-              return;
-            str = new RegExp(setValue.clearRegExp()).exec(str);
-            if ( str ) {
-              str = str[0];
-              break;
-            }
+    correctValue: function(){
+      var str = null;
+      if ( this.regExp ) {
+        while (true) {
+          str = prompt("Значение поля задается регулярным выражением:\r\n\r\n"
+                +setValue.clearRegExp()+"\r\n\r\nВведите значение для заполнения поля.\r\n\r\n"
+                +"(для отмены ничего не вводите)\r\n\r\n");
+          if ( !str || !str.length )
+            return;
+          str = new RegExp(setValue.clearRegExp()).exec(str);
+          if ( str ) {
+            str = str[0];
+            break;
           }
-        } else {
-          str = setValue.mask.replace(/x/g,'1');
         }
+      } else {
+        str = setValue.mask.replace(/x/g,'1');
       }
+      return str;
+    },
+    setValue_string: function(){
+      var str = '1';
+      if ( this.mask )
+        str = this.correctValue();
       $(this.elem).val(str);
-    }
+    },
+    setValue_check: function(){
+      if ( !$(this.elem).prop('checked') ) {
+        $(this.elem).trigger('click');
+      }
+    },
   };
 
   var getType = function getType(elem){
     var types = {
-      'string': '> input[attrtype="0"]',
-      'integer': '> input[attrtype="2"]',
-      'float': '> input[attrtype="3"]',
+      'string': '> input[type=text]',
       'date': '.attr-value-datepicker > input[attrtype="5"]',
       'modal': 'textarea',
       'select': '.bootstrap-select',
       'checkbox': '.checkbox-group',
-      'check': '> .checkbox',
+      'check': '> .checkbox input:nth-of-type(2)',
       'table': '> .table-container'
     };
     for ( var key in types ) {
