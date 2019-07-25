@@ -42,8 +42,10 @@
 
   var getType = function getType(elem){
     var types = {
-      'string': '> input[type=text]',
-      'date': '.attr-value-datepicker',
+      'string': '> input[attrtype="0"]',
+      'integer': '> input[attrtype="2"]',
+      'float': '> input[attrtype="3"]',
+      'date': '.attr-value-datepicker > input[attrtype="5"]',
       'modal': 'textarea',
       'select': '.bootstrap-select',
       'checkbox': '.checkbox-group',
