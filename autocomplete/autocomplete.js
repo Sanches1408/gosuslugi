@@ -36,16 +36,34 @@
       }
       return str;
     },
+    getDate: function(){
+      var now = new Date();
+      function g(v) {
+        return (v < 10 ? '0'+v : v);
+      }
+      now = g(now.getDate())+'.'+g(now.getMonth()+1)+'.'+now.getFullYear();
+      return now;
+    },
+    filled: function(){
+      $(this.elem).closest('.attr-field').addClass('attr-field--filled');
+    },
     setValue_string: function(){
       var str = '1';
       if ( this.mask )
         str = this.correctValue();
       $(this.elem).val(str);
+      if ( str )
+        this.filled();
     },
     setValue_check: function(){
       if ( !$(this.elem).prop('checked') ) {
         $(this.elem).trigger('click');
       }
+    },
+    setValue_date: function(){
+      $(this.elem).val(this.getDate());
+      $('[name="'+$(this.elem).attr('hidelem')+'"]').val((+new Date()).toString().substr(0, 8)+'00000');
+      this.filled();
     },
   };
 
@@ -86,6 +104,7 @@
     var method = 'setValue_'+setValue.type;
     if ( method in setValue ) {
       setValue[method]();
+      setValue.filled();
     }
 
   } );
