@@ -21,11 +21,12 @@ var execute = function execute(){
     types: {
       'string': '> input[type=text]',
       'date': '.attr-value-datepicker > input[attrtype="5"]',
-      'modal': 'textarea',
+      // 'modal': 'textarea',
       'select': '.bootstrap-select',
       'checkbox': '.checkbox-group',
       'check': '> .checkbox input:nth-of-type(2)',
-      'table': '> .table-container'
+      'table': '> .table-container',
+      'text': '> textarea'
     },
     _init: _init,
     print: print,
@@ -37,7 +38,8 @@ var execute = function execute(){
     filled: filled,
     setValue_string: setValue_string,
     setValue_check: setValue_check,
-    // setValue_date: setValue_date
+    // setValue_date: setValue_date,
+    setValue_text: setValue_text
   };
 
   function print() {
@@ -177,6 +179,10 @@ var execute = function execute(){
         value    = (+new Date()).toString().substr(0, 8)+'00000';
     this.elem.dom.querySelector(selector).value = value;
     this.filled();
+  };
+
+  function setValue_text() {
+    this.setValue_string();
   };
 
   setValue._init();
