@@ -12,7 +12,5 @@
 
     "permissions": [
         "activeTab"
-    ],
-
-    "web_accessible_resources": [ "popup.js" ]
+    ]
 }
