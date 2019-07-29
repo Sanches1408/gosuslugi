@@ -21,12 +21,13 @@ var execute = function execute(){
     types: {
       'string': '> input[type=text]',
       'date': '.attr-value-datepicker > input[attrtype="5"]',
-      // 'modal': 'textarea',
+      'modal': '> input + textarea',
       'select': '.bootstrap-select',
       'checkbox': '.checkbox-group',
       'check': '> .checkbox input:nth-of-type(2)',
       'table': '> .table-container',
-      'text': '> textarea'
+      'text': '> textarea',
+      'radio': '.radio'
     },
     _init: _init,
     print: print,
@@ -119,6 +120,7 @@ var execute = function execute(){
   };
 
   function correctValue(){
+    // FIXME: value's is reset in Chrome
     var str = null;
     if ( this.elem.rExp ) {
       while (true) {
