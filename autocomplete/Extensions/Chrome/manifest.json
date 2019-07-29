@@ -1,0 +1,18 @@
+{
+    "manifest_version": 2,
+
+    "name": "Gosuslugi74 (autocomplete)",
+    "description": "This is extension autocomplete petition's",
+    "version": "1.0",
+
+    "browser_action": {
+        "default_icon": "128x128.png",
+        "default_popup": "popup.html"
+    },
+
+    "permissions": [
+        "activeTab"
+    ],
+
+    "web_accessible_resources": [ "popup.js" ]
+}
