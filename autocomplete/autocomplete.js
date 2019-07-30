@@ -191,8 +191,15 @@ function autocomplete(){
         clearInterval(timer);
         addr.value = 'Тестовый адрес';
         var save = document.querySelector('[name="saveData"]');
-        if ( !save )
-          save = document.querySelector('.btn-default:not(.btn-action--prev)');
+        if ( !save ) {
+          save = document.querySelectorAll('.btn-default:not(.btn-action--prev)');
+          for ( i = 0; i < save.length; i++ ) {
+            if ( save[i].textContent.trim() === 'Сохранить' ) {
+              save = save[i];
+              break;
+            }
+          }
+        }
         save.click();
       }
     }, 100);
