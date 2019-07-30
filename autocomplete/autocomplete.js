@@ -41,7 +41,7 @@ function autocomplete(){
 
   function print() {
     var str = 'Атрибут "'+this.elem.name+'" ('+this.elem.code+')'
-      +' имеет свойства: mask = ' + (this.elem.mask ? this.elem.mask.substr(0, 10) : 'null')
+      +' имеет свойства: mask = ' + (this.elem.mask ? this.clearRegExp().substr(0, 50) : 'null')
       +', type = ' + this.elem.type;
     if ( this.elem.type )
       console.log(str);
@@ -105,7 +105,7 @@ function autocomplete(){
 
   function clearRegExp(){
     var mask = this.elem.mask;
-    if ( mask && this.regExp ) {
+    if ( mask && this.elem.rExp ) {
       mask = mask.split('RegExp=')[1];
       if ( mask.search( '^' ) > -1 )
         mask = mask.split('^')[1];

@@ -1,0 +1,12 @@
+.demo-card-square.mdl-card {
+  width: 320px;
+  min-height: 320px;
+}
+.demo-card-square > .mdl-card__title {
+  height: 200px;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+}
+h3 {
+  margin: 20px auto;
+}
