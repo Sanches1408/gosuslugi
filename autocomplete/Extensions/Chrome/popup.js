@@ -40,7 +40,11 @@ var execute = function execute(){
     setValue_string: setValue_string,
     setValue_check: setValue_check,
     // setValue_date: setValue_date,
-    setValue_text: setValue_text
+    setValue_text: setValue_text,
+    setValue_modal: setValue_modal,
+    setValue_select: setValue_select,
+    setValue_radio: setValue_radio,
+    setValue_checkbox: setValue_checkbox
   };
 
   function print() {
@@ -185,6 +189,33 @@ var execute = function execute(){
 
   function setValue_text() {
     this.setValue_string();
+  };
+
+  function setValue_modal() {
+    this.elem.input.click();
+    var timer = setInterval(function(){
+      var addr = document.querySelector('#id_addrText');
+      if ( addr ) {
+        clearInterval(timer);
+        addr.value = 'Тестовый адрес';
+        var save = document.querySelector('[name="saveData"]');
+        if ( !save )
+          save = document.querySelector('.btn-default:not(.btn-action--prev)');
+        save.click();
+      }
+    }, 100);
+  };
+
+  function setValue_select() {
+    this.elem.dom.querySelector('li:nth-of-type(2) a').click();
+  };
+
+  function setValue_radio() {
+    this.elem.dom.querySelector('[type=radio]').click();
+  };
+
+  function setValue_checkbox() {
+    this.elem.dom.querySelector('[type=checkbox]').click();
   };
 
   setValue._init();
