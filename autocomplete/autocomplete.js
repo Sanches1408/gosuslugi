@@ -31,7 +31,7 @@ function autocomplete(){
     filled: filled,
     setValue_string: setValue_string,
     setValue_check: setValue_check,
-    // setValue_date: setValue_date,
+    setValue_date: setValue_date,
     setValue_text: setValue_text,
     setValue_modal: setValue_modal,
     setValue_select: setValue_select,
@@ -172,10 +172,10 @@ function autocomplete(){
     /* FIXME: is correct for Firefox, but not correct for Chrome?
      *
      */
-    this.elem.input.value = this.getDate();
     var selector = '#id_'+this.elem.code,
         value    = (+new Date()).toString().substr(0, 8)+'00000';
     this.elem.dom.querySelector(selector).value = value;
+    this.elem.input.value = this.getDate();
     this.filled();
   };
 
